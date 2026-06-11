@@ -43,7 +43,7 @@ Greenfield/
 │   ├── stores/shop.js             Task 7 — owned contributors, lps, buy
 │   ├── stores/meta.js             Task 8 — nickname, boot, saveLocal, syncCloud
 │   └── components/
-│       ├── UsernameModal.vue      Task 8
+│       ├── NicknameModal.vue      Task 8
 │       ├── HeaderBar.vue          Task 9
 │       ├── ClickTarget.vue        Task 9
 │       ├── ContributorRow.vue     Task 9
@@ -761,7 +761,7 @@ VITE_SUPABASE_ANON_KEY=
 
 - [ ] **Step 4: Verify the app still builds with the new import**
 
-Run: `npm run build` — Expected: build succeeds (supabase module tree-shakes cleanly; no env vars needed).
+Run: `npm run build` — Expected: build succeeds (supabase-js is bundled unconditionally — acceptable at this size; no env vars needed).
 
 - [ ] **Step 5: Commit**
 
@@ -974,10 +974,12 @@ git commit -m "feat: game + shop stores (click, spend, tick, buy)" -m "Co-Author
 
 ---
 
-### Task 8: Meta store + UsernameModal (`stores/meta.js`, `components/UsernameModal.vue`)
+### Task 8: Meta store + NicknameModal (`stores/meta.js`, `components/NicknameModal.vue`)
+
+> **Amended after Wave A quality review:** component renamed NicknameModal → **NicknameModal** (glossary: avoid "username"); localStorage key is `gf_nickname`; cloud saves pass `migrate()`; `fetchSave` now returns `{ ok, row }` and `syncCloud` is gated on one successful fetch (`cloudReady`) so a failed boot fetch can never let a fresh session clobber an existing cloud save.
 
 **Files:**
-- Create: `src/stores/meta.js`, `src/components/UsernameModal.vue`
+- Create: `src/stores/meta.js`, `src/components/NicknameModal.vue`
 - Test: `tests/meta.test.js`
 
 - [ ] **Step 1: Write the failing tests** (with empty `VITE_SUPABASE_*`, `hasSupabase` is false, so `boot()` exercises the local-only path deterministically)
@@ -1001,10 +1003,10 @@ beforeEach(() => {
 })
 
 describe('meta store', () => {
-  it('saveNickname persists to localStorage under gf_user', () => {
+  it('saveNickname persists to localStorage under gf_nickname', () => {
     const meta = useMetaStore()
     meta.saveNickname('Linq Padawan')
-    expect(localStorage.getItem('gf_user')).toBe('Linq Padawan')
+    expect(localStorage.getItem('gf_nickname')).toBe('Linq Padawan')
     expect(meta.nickname).toBe('Linq Padawan')
   })
   it('saveLocal writes a snapshot that boot() restores', async () => {
@@ -1041,18 +1043,23 @@ Run: `npx vitest run tests/meta.test.js` — Expected: FAIL, module not found.
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { keyOf } from '../lib/names.js'
-import { buildSave, applySave, readLocal, writeLocal } from '../lib/save.js'
+import { buildSave, applySave, readLocal, writeLocal, migrate } from '../lib/save.js'
 import { decideSource } from '../lib/cloud.js'
-import { fetchSave, upsertSave } from '../lib/supabase.js'
+import { hasSupabase, fetchSave, upsertSave } from '../lib/supabase.js'
 import { useGameStore } from './game.js'
 import { useShopStore } from './shop.js'
 
-const USER_KEY = 'gf_user'
+const NICKNAME_KEY = 'gf_nickname'
 
 export const useMetaStore = defineStore('meta', () => {
   const nickname = ref('')
   const booted = ref(false)
   const lastCloudSync = ref(0)
+  // True once we've seen the cloud state for this nickname (or there is no cloud
+  // at all). While false, upserts are forbidden: a failed boot fetch must never
+  // let a fresh session overwrite an existing cloud save.
+  const cloudReady = ref(false)
+  let hadLocalAtBoot = false
 
   function stores() {
     return { game: useGameStore(), shop: useShopStore() }
@@ -1060,7 +1067,7 @@ export const useMetaStore = defineStore('meta', () => {
 
   function saveNickname(name) {
     nickname.value = name
-    localStorage.setItem(USER_KEY, name)
+    localStorage.setItem(NICKNAME_KEY, name)
   }
 
   function saveLocal() {
@@ -1069,6 +1076,17 @@ export const useMetaStore = defineStore('meta', () => {
 
   async function syncCloud() {
     if (!nickname.value) return false
+    if (!cloudReady.value) {
+      // Cloud state unknown (boot fetch failed, or nickname was set after boot):
+      // re-check before the first upsert. If a cloud save exists and this session
+      // started without local progress, recover the cloud save instead of
+      // clobbering it.
+      const res = await fetchSave(keyOf(nickname.value))
+      if (!res.ok) return false
+      cloudReady.value = true
+      const cloudSave = migrate(res.row?.save)
+      if (cloudSave && !hadLocalAtBoot) applySave(cloudSave, stores())
+    }
     const ok = await upsertSave(keyOf(nickname.value), nickname.value, buildSave(stores()))
     if (ok) lastCloudSync.value = Date.now()
     return ok
@@ -1076,12 +1094,17 @@ export const useMetaStore = defineStore('meta', () => {
 
   // Load order: nickname → local save + cloud snapshot → newest savedAt wins.
   async function boot() {
-    nickname.value = localStorage.getItem(USER_KEY) || ''
+    nickname.value = localStorage.getItem(NICKNAME_KEY) || ''
     const local = readLocal()
+    hadLocalAtBoot = Boolean(local)
+    cloudReady.value = !hasSupabase // offline mode: nothing to protect
     let cloud = null
-    if (nickname.value) {
-      const row = await fetchSave(keyOf(nickname.value))
-      cloud = row?.save ?? null
+    if (nickname.value && hasSupabase) {
+      const res = await fetchSave(keyOf(nickname.value))
+      if (res.ok) {
+        cloudReady.value = true
+        cloud = migrate(res.row?.save) ?? null
+      }
     }
     const source = decideSource(local, cloud)
     if (source === 'local') applySave(local, stores())
@@ -1089,11 +1112,13 @@ export const useMetaStore = defineStore('meta', () => {
     booted.value = true
   }
 
-  return { nickname, booted, lastCloudSync, saveNickname, saveLocal, syncCloud, boot }
+  return { nickname, booted, lastCloudSync, cloudReady, saveNickname, saveLocal, syncCloud, boot }
 })
 ```
 
-- [ ] **Step 4: Implement `src/components/UsernameModal.vue`** (simplified from English-Trainer's modal — same validation rules; not dismissable in M1 because a nickname is required before play)
+Note the bonus behavior this gating buys: a player who types an existing nickname on a brand-new device (no local save) gets their cloud progress recovered at the first sync instead of overwriting it.
+
+- [ ] **Step 4: Implement `src/components/NicknameModal.vue`** (simplified from English-Trainer's modal — same validation rules; not dismissable in M1 because a nickname is required before play)
 
 ```vue
 <script setup>
@@ -1162,7 +1187,7 @@ Run: `npx vitest run tests/meta.test.js` — Expected: PASS (3 tests).
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/stores/meta.js src/components/UsernameModal.vue tests/meta.test.js
+git add src/stores/meta.js src/components/NicknameModal.vue tests/meta.test.js
 git commit -m "feat: meta store (nickname, boot, cloud sync) + username modal" -m "Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ```
 
@@ -1276,7 +1301,7 @@ import { onMounted, onUnmounted } from 'vue'
 import HeaderBar from './components/HeaderBar.vue'
 import ClickTarget from './components/ClickTarget.vue'
 import ShopPanel from './components/ShopPanel.vue'
-import UsernameModal from './components/UsernameModal.vue'
+import NicknameModal from './components/NicknameModal.vue'
 import { useGameStore } from './stores/game.js'
 import { useMetaStore } from './stores/meta.js'
 
@@ -1287,6 +1312,11 @@ let tickHandle, saveHandle, cloudHandle, lastTick
 
 function onBeforeUnload() {
   meta.saveLocal()
+}
+
+function onVisibilityChange() {
+  // beforeunload is unreliable on mobile Safari — also save when backgrounded
+  if (document.visibilityState === 'hidden') meta.saveLocal()
 }
 
 onMounted(async () => {
@@ -1300,6 +1330,7 @@ onMounted(async () => {
   saveHandle = setInterval(() => meta.saveLocal(), 30_000)
   cloudHandle = setInterval(() => meta.syncCloud(), 300_000)
   window.addEventListener('beforeunload', onBeforeUnload)
+  document.addEventListener('visibilitychange', onVisibilityChange)
 })
 
 onUnmounted(() => {
@@ -1307,6 +1338,7 @@ onUnmounted(() => {
   clearInterval(saveHandle)
   clearInterval(cloudHandle)
   window.removeEventListener('beforeunload', onBeforeUnload)
+  document.removeEventListener('visibilitychange', onVisibilityChange)
 })
 
 function onSaveName(name) {
@@ -1317,9 +1349,10 @@ function onSaveName(name) {
 </script>
 
 <template>
-  <UsernameModal :open="meta.booted && !meta.nickname" @save="onSaveName" />
+  <NicknameModal :open="meta.booted && !meta.nickname" @save="onSaveName" />
   <HeaderBar />
-  <main class="layout">
+  <!-- Gate on booted so clicks can't land before the saved state is applied -->
+  <main v-if="meta.booted" class="layout">
     <section class="pane"><ClickTarget /></section>
     <section class="pane"><ShopPanel /></section>
   </main>
@@ -1498,3 +1531,18 @@ git commit -m "ci: GitHub Pages deploy with test gate" -m "Co-Authored-By: Claud
 - Create the GitHub repo + push; enable Pages (Actions source).
 - Create/reuse a Supabase project, run `supabase/schema.sql`, fill `.env`, commit.
 - After `.env` is filled: manual cloud check — play, wait for a sync (or trigger one by setting the nickname), verify a row in `saves`, open the site in a second browser with the same nickname and confirm the newer save wins.
+
+
+---
+
+## Post-review amendments (Wave A quality review)
+
+Applied after Tasks 2-6 landed; supersedes the corresponding code blocks above.
+
+1. **format.js tier-boundary rounding (was: 999999 -> "1000K"):** round to 3 significant digits FIRST, then re-derive the tier; boundary tests added (999999 -> "1.00M", 9996 -> "10.0K", 99960 -> "100K", formatRate(999.96) -> "999").
+2. **names.js:** `keyOf` applies `.normalize('NFC')` before lowercasing (NFD-input macOS nicknames must map to the same cloud row); test added.
+3. **save.js:** `const save = raw` -> `let save = raw` inside `migrate` (the documented future-migration pattern would have thrown on assignment); tests added for `migrate({})` and `decideSource` with missing `savedAt` on both sides.
+4. **supabase.js contract change:** `fetchSave` returns `{ ok: boolean, row: object|null }` so callers can distinguish "no cloud save" from "fetch failed". Consumed by the amended Task 8 (`cloudReady` gating).
+5. **schema.sql:** update policy now also checks `nickname_key` length (symmetry with insert); both write policies cap payloads with `pg_column_size(save) < 65536`; leaderboard note added (jsonb text-ordering pitfall -> use a generated numeric column when the leaderboard lands).
+6. **package.json:** `--passWithNoTests` removed; with 21+ tests in the tree, zero collected tests means breakage and must fail CI.
+7. **Glossary enforcement:** UsernameModal -> NicknameModal, localStorage key `gf_user` -> `gf_nickname` (CONTEXT.md: avoid "username"); Task 8/9 sections updated in place.
