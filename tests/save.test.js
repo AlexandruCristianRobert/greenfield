@@ -34,7 +34,7 @@ describe('keyOf', () => {
     expect(keyOf('')).toBe('')
   })
   it('maps NFD and NFC spellings to the same key', () => {
-    expect(keyOf('José')).toBe(keyOf('José'))
+    expect(keyOf('José')).toBe(keyOf('José')) // NFD vs NFC é
   })
 })
 
