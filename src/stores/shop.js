@@ -4,6 +4,12 @@ import { CONTRIBUTORS } from '../data/contributors.js'
 import { costOf, totalLps } from '../lib/economy.js'
 import { useGameStore } from './game.js'
 
+// Saves can arrive from the world-writable cloud table — never trust them.
+function toCount(value) {
+  const n = Number(value)
+  return Number.isFinite(n) && n > 0 ? n : 0
+}
+
 export const useShopStore = defineStore('shop', () => {
   const owned = reactive({}) // { [contributorId]: count }
 
@@ -30,7 +36,10 @@ export const useShopStore = defineStore('shop', () => {
 
   function hydrate(slice) {
     for (const k of Object.keys(owned)) delete owned[k]
-    Object.assign(owned, slice.owned || {})
+    for (const [id, count] of Object.entries(slice.owned || {})) {
+      const n = Math.floor(toCount(count))
+      if (n > 0) owned[id] = n
+    }
   }
 
   return { owned, lps, countOf, nextCostOf, buy, toSave, hydrate }

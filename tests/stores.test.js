@@ -42,6 +42,15 @@ describe('game store', () => {
     expect(fresh.loc).toBe(77)
     expect(fresh.lifetimeLoc).toBe(77)
   })
+  it('hydrate sanitizes hostile or corrupt save data', () => {
+    const game = useGameStore()
+    game.hydrate({ loc: 'poison', lifetimeLoc: Infinity })
+    expect(game.loc).toBe(0)
+    expect(game.lifetimeLoc).toBe(0)
+    game.hydrate({ loc: -50, lifetimeLoc: NaN })
+    expect(game.loc).toBe(0)
+    expect(game.lifetimeLoc).toBe(0)
+  })
 })
 
 describe('shop store', () => {
@@ -76,5 +85,14 @@ describe('shop store', () => {
     shop.hydrate({ owned: { junior: 2 } })
     expect(shop.countOf('intern')).toBe(0)
     expect(shop.countOf('junior')).toBe(2)
+  })
+  it('hydrate drops junk owned entries and floors fractional counts', () => {
+    const shop = useShopStore()
+    shop.hydrate({ owned: { junior: '3', senior: 2.9, intern: -4, ghost: 'NaN' } })
+    expect(shop.countOf('junior')).toBe(3)
+    expect(shop.countOf('senior')).toBe(2)
+    expect(shop.countOf('intern')).toBe(0)
+    expect(shop.countOf('ghost')).toBe(0)
+    expect(shop.lps).toBeGreaterThan(0)
   })
 })

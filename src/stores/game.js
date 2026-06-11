@@ -2,6 +2,12 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useShopStore } from './shop.js'
 
+// Saves can arrive from the world-writable cloud table — never trust them.
+function toCount(value) {
+  const n = Number(value)
+  return Number.isFinite(n) && n > 0 ? n : 0
+}
+
 export const useGameStore = defineStore('game', () => {
   const loc = ref(0)         // spendable LoC
   const lifetimeLoc = ref(0) // never decreases — feeds the future Blueprint formula
@@ -33,8 +39,8 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function hydrate(slice) {
-    loc.value = slice.loc ?? 0
-    lifetimeLoc.value = slice.lifetimeLoc ?? 0
+    loc.value = toCount(slice.loc)
+    lifetimeLoc.value = toCount(slice.lifetimeLoc)
   }
 
   return { loc, lifetimeLoc, clickPower, addLoc, click, spend, tick, toSave, hydrate }
