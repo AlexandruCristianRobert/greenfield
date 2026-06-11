@@ -9,6 +9,15 @@ import { useShopStore } from './shop.js'
 
 const NICKNAME_KEY = 'gf_nickname'
 
+// localStorage can THROW on mere access in some privacy modes — degrade to
+// memory-only identity instead of dying.
+function safeGet(key) {
+  try { return localStorage.getItem(key) } catch { return null }
+}
+function safeSet(key, value) {
+  try { localStorage.setItem(key, value) } catch { /* memory-only session */ }
+}
+
 export const useMetaStore = defineStore('meta', () => {
   const nickname = ref('')
   const booted = ref(false)
@@ -25,7 +34,7 @@ export const useMetaStore = defineStore('meta', () => {
 
   function saveNickname(name) {
     nickname.value = name
-    localStorage.setItem(NICKNAME_KEY, name)
+    safeSet(NICKNAME_KEY, name)
   }
 
   function saveLocal() {
@@ -38,12 +47,20 @@ export const useMetaStore = defineStore('meta', () => {
       // Cloud state unknown (boot fetch failed, or nickname was set after boot):
       // re-check before the first upsert. If a cloud save exists and this session
       // started without local progress, recover the cloud save instead of
-      // clobbering it.
+      // clobbering it. (Narrow stomp window accepted for M1: if the modal-submit
+      // fetch failed transiently, up to ~5 min of fresh-start progress yields to
+      // the richer cloud save — the safer direction.)
       const res = await fetchSave(keyOf(nickname.value))
       if (!res.ok) return false
-      cloudReady.value = true
       const cloudSave = migrate(res.row?.save)
-      if (cloudSave && !hadLocalAtBoot) applySave(cloudSave, stores())
+      // A row we can't migrate was written by a NEWER build — this stale client
+      // must never upsert over it.
+      if (res.row && !cloudSave) return false
+      cloudReady.value = true
+      if (cloudSave && !hadLocalAtBoot) {
+        applySave(cloudSave, stores())
+        saveLocal() // persist the recovery so a later failed upsert + tab death can't resurrect the stale local
+      }
     }
     const ok = await upsertSave(keyOf(nickname.value), nickname.value, buildSave(stores()))
     if (ok) lastCloudSync.value = Date.now()
@@ -52,7 +69,7 @@ export const useMetaStore = defineStore('meta', () => {
 
   // Load order: nickname → local save + cloud snapshot → newest savedAt wins.
   async function boot() {
-    nickname.value = localStorage.getItem(NICKNAME_KEY) || ''
+    nickname.value = safeGet(NICKNAME_KEY) || ''
     const local = readLocal()
     hadLocalAtBoot = Boolean(local)
     cloudReady.value = !hasSupabase // offline mode: nothing to protect
@@ -60,8 +77,10 @@ export const useMetaStore = defineStore('meta', () => {
     if (nickname.value && hasSupabase) {
       const res = await fetchSave(keyOf(nickname.value))
       if (res.ok) {
-        cloudReady.value = true
         cloud = migrate(res.row?.save) ?? null
+        // A row we can't migrate was written by a NEWER build — keep cloudReady
+        // false so this stale client never upserts over it.
+        if (!res.row || cloud) cloudReady.value = true
       }
     }
     const source = decideSource(local, cloud)

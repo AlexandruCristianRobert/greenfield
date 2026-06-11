@@ -23,7 +23,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function tick(dtSeconds) {
-    if (dtSeconds <= 0) return
+    if (!(dtSeconds > 0)) return
     const shop = useShopStore()
     if (shop.lps > 0) addLoc(shop.lps * dtSeconds)
   }
