@@ -26,6 +26,7 @@ create policy "saves_insert_valid"
   with check (
     char_length(nickname) between 2 and 20
     and char_length(nickname_key) between 2 and 20
+    and pg_column_size(save) < 65536
   );
 
 drop policy if exists "saves_update_valid" on public.saves;
@@ -33,5 +34,13 @@ create policy "saves_update_valid"
   on public.saves for update
   to anon
   using (true)
-  with check (char_length(nickname) between 2 and 20);
+  with check (
+    char_length(nickname) between 2 and 20
+    and char_length(nickname_key) between 2 and 20
+    and pg_column_size(save) < 65536
+  );
 -- No DELETE policy → deletes denied for anon.
+
+-- NOTE for the future leaderboard: do NOT order by save->'game'->>'lifetimeLoc'
+-- directly (jsonb text extraction orders lexicographically: "9" > "1000").
+-- Add a generated numeric column or a view that casts to numeric when needed.

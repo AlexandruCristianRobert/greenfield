@@ -17,7 +17,7 @@ export function buildSave({ game, shop }) {
 export function migrate(raw) {
   if (!raw || typeof raw !== 'object' || typeof raw.v !== 'number') return null
   if (raw.v > SAVE_VERSION) return null // newer than this build understands
-  const save = raw
+  let save = raw
   // future versions: step-upgrade here, e.g. if (save.v === 1) save = v1ToV2(save)
   return save.v === SAVE_VERSION ? save : null
 }

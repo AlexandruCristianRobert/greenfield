@@ -16,6 +16,11 @@ describe('formatNumber', () => {
   it('falls back to exponential beyond the suffix table', () => {
     expect(formatNumber(1e33)).toBe('1.00e+33')
   })
+  it('rounds across tier boundaries without 4-digit artifacts', () => {
+    expect(formatNumber(999_999)).toBe('1.00M')
+    expect(formatNumber(9_996)).toBe('10.0K')
+    expect(formatNumber(99_960)).toBe('100K')
+  })
 })
 
 describe('formatRate', () => {
@@ -25,5 +30,8 @@ describe('formatRate', () => {
   })
   it('delegates to suffixes at 1000+', () => {
     expect(formatRate(1400)).toBe('1.40K')
+  })
+  it('floors sub-1000 values that would round up to 1000', () => {
+    expect(formatRate(999.96)).toBe('999')
   })
 })

@@ -33,6 +33,9 @@ describe('keyOf', () => {
     expect(keyOf('  Linq  Padawan ')).toBe('linq padawan')
     expect(keyOf('')).toBe('')
   })
+  it('maps NFD and NFC spellings to the same key', () => {
+    expect(keyOf('José')).toBe(keyOf('José'))
+  })
 })
 
 describe('decideSource', () => {
@@ -45,6 +48,9 @@ describe('decideSource', () => {
     expect(decideSource({ savedAt: 100 }, { savedAt: 200 })).toBe('cloud')
     expect(decideSource({ savedAt: 200 }, { savedAt: 100 })).toBe('local')
     expect(decideSource({ savedAt: 100 }, { savedAt: 100 })).toBe('local')
+  })
+  it('treats missing savedAt as 0 (ties go local)', () => {
+    expect(decideSource({}, {})).toBe('local')
   })
 })
 
@@ -69,6 +75,11 @@ describe('save round-trip', () => {
   })
   it('migrate rejects saves newer than this build', () => {
     expect(migrate({ v: SAVE_VERSION + 1 })).toBe(null)
+  })
+  it('migrate rejects junk shapes', () => {
+    expect(migrate({})).toBe(null)
+    expect(migrate('string')).toBe(null)
+    expect(migrate(null)).toBe(null)
   })
   it('applySave hydrates both stores', () => {
     const src = fakeStores()
