@@ -1,0 +1,80 @@
+import { describe, it, expect, beforeEach } from 'vitest'
+import { setActivePinia, createPinia } from 'pinia'
+import { useGameStore } from '../src/stores/game.js'
+import { useShopStore } from '../src/stores/shop.js'
+import { CONTRIBUTORS } from '../src/data/contributors.js'
+
+beforeEach(() => setActivePinia(createPinia()))
+
+describe('game store', () => {
+  it('click adds clickPower to loc and lifetimeLoc', () => {
+    const game = useGameStore()
+    game.click()
+    game.click()
+    expect(game.loc).toBe(2)
+    expect(game.lifetimeLoc).toBe(2)
+  })
+  it('spend refuses overdraft and deducts otherwise (lifetime untouched)', () => {
+    const game = useGameStore()
+    game.addLoc(100)
+    expect(game.spend(150)).toBe(false)
+    expect(game.spend(40)).toBe(true)
+    expect(game.loc).toBe(60)
+    expect(game.lifetimeLoc).toBe(100)
+  })
+  it('tick adds lps × dt and ignores non-positive dt', () => {
+    const game = useGameStore()
+    const shop = useShopStore()
+    shop.owned['junior'] = 10 // 10 × 1 LoC/s
+    game.tick(2.5)
+    expect(game.loc).toBeCloseTo(25)
+    game.tick(0)
+    game.tick(-5)
+    expect(game.loc).toBeCloseTo(25)
+  })
+  it('hydrate restores a toSave round-trip', () => {
+    const game = useGameStore()
+    game.addLoc(77)
+    const slice = game.toSave()
+    setActivePinia(createPinia())
+    const fresh = useGameStore()
+    fresh.hydrate(slice)
+    expect(fresh.loc).toBe(77)
+    expect(fresh.lifetimeLoc).toBe(77)
+  })
+})
+
+describe('shop store', () => {
+  it('buy deducts the current cost, increments owned, and raises the next cost', () => {
+    const game = useGameStore()
+    const shop = useShopStore()
+    const intern = CONTRIBUTORS[0]
+    game.addLoc(100)
+    expect(shop.buy(intern)).toBe(true)
+    expect(shop.countOf('intern')).toBe(1)
+    expect(game.loc).toBe(85) // 100 − 15
+    expect(shop.nextCostOf(intern)).toBe(18) // ceil(15 × 1.15)
+  })
+  it('buy fails without enough LoC and changes nothing', () => {
+    const game = useGameStore()
+    const shop = useShopStore()
+    game.addLoc(5)
+    expect(shop.buy(CONTRIBUTORS[0])).toBe(false)
+    expect(shop.countOf('intern')).toBe(0)
+    expect(game.loc).toBe(5)
+  })
+  it('lps reflects owned contributors', () => {
+    const shop = useShopStore()
+    expect(shop.lps).toBe(0)
+    shop.owned['junior'] = 2
+    shop.owned['senior'] = 1
+    expect(shop.lps).toBe(10) // 2×1 + 1×8
+  })
+  it('hydrate replaces owned counts wholesale', () => {
+    const shop = useShopStore()
+    shop.owned['intern'] = 5
+    shop.hydrate({ owned: { junior: 2 } })
+    expect(shop.countOf('intern')).toBe(0)
+    expect(shop.countOf('junior')).toBe(2)
+  })
+})
