@@ -17,7 +17,7 @@ export const PR_CONTENT = {
       id: 'pr-cs2-01',
       era: 'cs2',
       text: 'What does this iterator print when consumed with foreach?',
-      snippet: 'static IEnumerable<int> Count() {\n    yield return 1;\n    yield return 2;\n    yield return 3;\n}\nforeach (var n in Count()) Console.Write(n + " ");',
+      snippet: 'static IEnumerable<int> Count() {\n    yield return 1;\n    yield return 2;\n    yield return 3;\n}\nforeach (int n in Count()) Console.Write(n + " ");',
       options: [
         '1 2 3',
         '3 2 1',
@@ -127,7 +127,7 @@ export const PR_CONTENT = {
       options: [
         'No — IEnumerable<string> is not assignable to IEnumerable<object> in any version',
         'Yes — prints "a"; covariance (out T) allows the assignment',
-        'Yes — but only because string and object are both reference types with no type check',
+        'Yes — but only because string and object are both reference types',
         'No — covariance requires an explicit cast',
       ],
       answer: 1,
@@ -162,7 +162,7 @@ export const PR_CONTENT = {
     {
       id: 'pr-cs5-03',
       era: 'cs5',
-      text: 'What happens when the CancellationToken is already cancelled before WorkAsync runs?',
+      text: 'What happens when the token is already cancelled before WorkAsync runs?',
       snippet: 'var cts = new CancellationTokenSource();\ncts.Cancel();\nasync Task WorkAsync(CancellationToken ct) {\n    ct.ThrowIfCancellationRequested();\n    await Task.Delay(500, ct);\n}\nawait WorkAsync(cts.Token);',
       options: [
         'The method completes normally and ignores the token',

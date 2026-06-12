@@ -102,7 +102,7 @@ export const PR_CONTENT = {
       id: 'pr-cs10-01',
       era: 'cs10',
       text: 'What does this snippet print?',
-      snippet: 'namespace Demo;\npublic class Greeter {\n    public string Hello() => "hi";\n}\nConsole.WriteLine(new Greeter().Hello());',
+      snippet: 'namespace Demo;\npublic class Greeter {\n    public string Hello() => "hi";\n    public static void Main() =>\n        Console.WriteLine(new Greeter().Hello());\n}',
       options: [
         'Compile error — namespace needs braces',
         'hi',

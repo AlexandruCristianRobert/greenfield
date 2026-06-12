@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { ACHIEVEMENTS } from '../src/data/achievements.js'
 import { PR_QUESTIONS, prPoolFor } from '../src/data/prs.js'
+import { ERAS } from '../src/data/eras.js'
 
 const BASE_CTX = { lifetimeLoc: 0, totalContributors: 0, maxSingleContributor: 0, cardsOwned: 0, examsPassed: 0, skillsAllocated: 0, maxBranchNodes: 0, maxCombo: 0, nuggetsClicked: 0, prsCorrect: 0, efTierIndex: -1 }
 
@@ -26,5 +27,11 @@ describe('PR bank structure', () => {
       expect(typeof q.snippet).toBe('string')
     }
     expect(prPoolFor(-1)).toHaveLength(0)
+  })
+  it('has exactly 3 PR questions per era with unique ids', () => {
+    for (const era of ERAS) {
+      expect(PR_QUESTIONS.filter((q) => q.era === era.id), era.id).toHaveLength(3)
+    }
+    expect(new Set(PR_QUESTIONS.map((q) => q.id)).size).toBe(PR_QUESTIONS.length)
   })
 })
