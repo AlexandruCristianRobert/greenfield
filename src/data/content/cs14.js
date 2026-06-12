@@ -1,4 +1,11 @@
-// C# 14 (2025) — content authored against learn.microsoft.com in a research task
+// C# 14 (2025) — content authored against learn.microsoft.com (doc-verified).
+// Sources:
+//   https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-14
+//   https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/extension
+//   https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/field
+//   https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/member-access-operators#null-conditional-operators--and-
+//   https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/lambda-expressions#input-parameters-of-a-lambda-expression
+//   https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/partial-member
 export const ERA_CONTENT = {
   features: [
     {
@@ -8,8 +15,8 @@ export const ERA_CONTENT = {
       cost: 2.9e14,
       effect: { type: 'lpsMult', value: 1.80 },
       effectText: 'All Contributors +80% LoC/s',
-      blurb: '',
-      snippet: '',
+      blurb: 'C# 14 adds extension blocks that can declare extension properties, static extension members, and user-defined operators — not just extension methods.',
+      snippet: 'extension<TSource>(IEnumerable<TSource> source) {\n    public bool IsEmpty => !source.Any();\n}',
     },
     {
       id: 'cs14-field-keyword',
@@ -18,8 +25,8 @@ export const ERA_CONTENT = {
       cost: 4e14,
       effect: { type: 'clickMult', value: 1.50 },
       effectText: 'Click power +50%',
-      blurb: '',
-      snippet: '',
+      blurb: 'field in a property accessor refers to the compiler-synthesised backing field — add validation logic without declaring a separate named field in your type.',
+      snippet: 'public string Message {\n    get;\n    set => field = value ?? throw new ArgumentNullException(nameof(value));\n}',
     },
     {
       id: 'cs14-null-conditional-assignment',
@@ -28,8 +35,8 @@ export const ERA_CONTENT = {
       cost: 5.5e14,
       effect: { type: 'lpsMult', value: 1.45 },
       effectText: 'All Contributors +45% LoC/s',
-      blurb: '',
-      snippet: '',
+      blurb: '?. and ?[] can now be on the left side of an assignment — the right side evaluates only when the receiver is non-null, removing explicit null-check blocks.',
+      snippet: '// Before C# 14:\n// if (customer != null) customer.Order = GetOrder();\ncustomer?.Order = GetOrder();',
     },
     {
       id: 'cs14-nameof-unbound-generics',
@@ -38,8 +45,8 @@ export const ERA_CONTENT = {
       cost: 7.5e14,
       effect: { type: 'clickMult', value: 1.35 },
       effectText: 'Click power +35%',
-      blurb: '',
-      snippet: '',
+      blurb: 'nameof now accepts unbound generic types like List<> and returns the type name without requiring a concrete type argument such as List<int>.',
+      snippet: 'string name1 = nameof(List<>);    // "List"\nstring name2 = nameof(Dictionary<,>); // "Dictionary"',
     },
     {
       id: 'cs14-partial-events-ctors',
@@ -48,8 +55,8 @@ export const ERA_CONTENT = {
       cost: 1e15,
       effect: { type: 'costMult', value: 0.90 },
       effectText: 'Contributor costs −10%',
-      blurb: '',
-      snippet: '',
+      blurb: 'Partial classes in C# 14 can declare partial constructors and partial events. Each needs exactly one defining declaration and one implementing declaration.',
+      snippet: 'public partial class Sensor {\n    public partial event EventHandler DataReady; // defining\n    public partial Sensor(int id);             // defining\n}',
     },
     {
       id: 'cs14-lambda-param-modifiers',
@@ -58,9 +65,125 @@ export const ERA_CONTENT = {
       cost: 1.4e15,
       effect: { type: 'lpsMult', value: 1.35 },
       effectText: 'All Contributors +35% LoC/s',
-      blurb: '',
-      snippet: '',
+      blurb: 'Lambda parameters can now carry modifiers like ref, out, in, or scoped without requiring explicit type annotations on every parameter.',
+      snippet: 'delegate bool TryParse<T>(string text, out T result);\nTryParse<int> p = (text, out result) => int.TryParse(text, out result);',
     },
   ],
-  questions: [],
+  questions: [
+    {
+      id: 'q-cs14-01',
+      era: 'cs14',
+      feature: 'cs14-extension-members',
+      text: 'What can C# 14 extension blocks declare that classic extension methods cannot?',
+      options: [
+        'Extension methods on sealed classes only',
+        'Extension properties, static extension members, and user-defined operators',
+        'Extension constructors that replace new()',
+        'Extension attributes applied at runtime',
+      ],
+      answer: 1,
+    },
+    {
+      id: 'q-cs14-02',
+      era: 'cs14',
+      feature: 'cs14-extension-members',
+      text: 'In the snippet, how is the IsEmpty extension property called on a sequence?',
+      options: [
+        'Enumerable.IsEmpty(sequence)',
+        'sequence.IsEmpty',
+        'IsEmpty<TSource>(sequence)',
+        'extension.IsEmpty(sequence)',
+      ],
+      answer: 1,
+    },
+    {
+      id: 'q-cs14-03',
+      era: 'cs14',
+      feature: 'cs14-field-keyword',
+      text: 'What does the field keyword refer to inside a property accessor in C# 14?',
+      options: [
+        'A public field with the same name as the property',
+        'The compiler-synthesised backing field for that property',
+        'A static field shared across all instances',
+        'A field inherited from the base class',
+      ],
+      answer: 1,
+    },
+    {
+      id: 'q-cs14-04',
+      era: 'cs14',
+      feature: 'cs14-field-keyword',
+      text: 'In the snippet, when does the setter throw ArgumentNullException?',
+      options: [
+        'When the property is accessed for the first time',
+        'When value is null',
+        'When field already has a value',
+        'When the get accessor returns an empty string',
+      ],
+      answer: 1,
+    },
+    {
+      id: 'q-cs14-05',
+      era: 'cs14',
+      feature: 'cs14-null-conditional-assignment',
+      text: 'Given customer?.Order = GetOrder(), when is GetOrder() NOT called?',
+      options: [
+        'When Order is null',
+        'When customer is null',
+        'When GetOrder() returns null',
+        'When Order already has a value',
+      ],
+      answer: 1,
+    },
+    {
+      id: 'q-cs14-06',
+      era: 'cs14',
+      feature: 'cs14-null-conditional-assignment',
+      text: 'Which operators are NOT supported with null-conditional assignment in C# 14?',
+      options: [
+        'Compound assignment operators like += and -=',
+        'Increment and decrement operators ++ and --',
+        'The simple = assignment operator',
+        'The -= operator on event handlers',
+      ],
+      answer: 1,
+    },
+    {
+      id: 'q-cs14-07',
+      era: 'cs14',
+      feature: 'cs14-nameof-unbound-generics',
+      text: 'What does nameof(List<>) evaluate to in C# 14?',
+      options: ['"List<>"', '"List<T>"', '"List"', '"IList"'],
+      answer: 2,
+    },
+    {
+      id: 'q-cs14-08',
+      era: 'cs14',
+      feature: 'cs14-nameof-unbound-generics',
+      text: 'What was required before C# 14 to get the name "Dictionary" via nameof?',
+      options: [
+        'nameof(Dictionary<,>) with unbound type arguments',
+        'A closed type like nameof(Dictionary<string, int>)',
+        'typeof(Dictionary<>).Name at runtime only',
+        'It was not possible before C# 14',
+      ],
+      answer: 1,
+    },
+    {
+      id: 'q-cs14-09',
+      era: 'cs14',
+      feature: 'cs14-partial-events-ctors',
+      text: 'How many implementing declarations must a partial constructor have in C# 14?',
+      options: ['Zero — it is optional', 'Exactly one', 'Up to three', 'One per partial file'],
+      answer: 1,
+    },
+    {
+      id: 'q-cs14-10',
+      era: 'cs14',
+      feature: 'cs14-lambda-param-modifiers',
+      text: 'In the snippet, what modifier is used on the lambda parameter result without specifying its type?',
+      options: ['ref', 'in', 'out', 'scoped'],
+      answer: 2,
+    },
+  ],
 }

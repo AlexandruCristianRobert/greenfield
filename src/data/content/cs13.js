@@ -1,4 +1,10 @@
-// C# 13 (2024) — content authored against learn.microsoft.com in a research task
+// C# 13 (2024) — content authored against learn.microsoft.com (doc-verified).
+// Sources:
+//   https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-13
+//   https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-13.0/params-collections
+//   https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/lock
+//   https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/partial-member
+//   https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/general#overloadresolutionpriority-attribute
 export const ERA_CONTENT = {
   features: [
     {
@@ -8,8 +14,8 @@ export const ERA_CONTENT = {
       cost: 2.4e13,
       effect: { type: 'lpsMult', value: 1.60 },
       effectText: 'All Contributors +60% LoC/s',
-      blurb: '',
-      snippet: '',
+      blurb: 'params is no longer limited to arrays — use it with Span<T>, IEnumerable<T>, or any collection type that has an Add method.',
+      snippet: 'public void Concat<T>(params ReadOnlySpan<T> items) {\n    foreach (var i in items) Console.Write(i + " ");\n}',
     },
     {
       id: 'cs13-new-lock-object',
@@ -18,8 +24,8 @@ export const ERA_CONTENT = {
       cost: 3.4e13,
       effect: { type: 'lpsMult', value: 1.40 },
       effectText: 'All Contributors +40% LoC/s',
-      blurb: '',
-      snippet: '',
+      blurb: '.NET 9 adds System.Threading.Lock — a new type for thread synchronisation. The C# lock statement automatically uses its optimised API instead of Monitor.',
+      snippet: 'Lock _lock = new Lock();\nlock (_lock) {\n    // uses Lock.EnterScope(), not Monitor.Enter\n}',
     },
     {
       id: 'cs13-escape-sequence-e',
@@ -28,8 +34,8 @@ export const ERA_CONTENT = {
       cost: 4.6e13,
       effect: { type: 'clickMult', value: 1.30 },
       effectText: 'Click power +30%',
-      blurb: '',
-      snippet: '',
+      blurb: '\\e is a new character literal escape sequence for the ESCAPE character U+001B, safer than \\x1b which could accidentally absorb following hex digits.',
+      snippet: 'char esc = \'\\e\';\n// same as \'\\u001b\' (ESCAPE / U+001B)\nConsole.Write($"\\e[31mRed text\\e[0m");',
     },
     {
       id: 'cs13-partial-properties',
@@ -38,8 +44,8 @@ export const ERA_CONTENT = {
       cost: 6.3e13,
       effect: { type: 'costMult', value: 0.90 },
       effectText: 'Contributor costs −10%',
-      blurb: '',
-      snippet: '',
+      blurb: 'C# 13 adds partial properties and indexers — one declaring declaration and one implementing declaration, matching the same rules as partial methods.',
+      snippet: 'public partial class C {\n    public partial string Name { get; set; }\n}\npublic partial class C {\n    private string _name;\n    public partial string Name { get => _name; set => _name = value; }\n}',
     },
     {
       id: 'cs13-implicit-index-initializers',
@@ -48,8 +54,8 @@ export const ERA_CONTENT = {
       cost: 8.6e13,
       effect: { type: 'clickMult', value: 1.40 },
       effectText: 'Click power +40%',
-      blurb: '',
-      snippet: '',
+      blurb: 'The from-the-end index operator ^ can now be used inside object initializer expressions, letting you set array elements counting from the end.',
+      snippet: 'var t = new TimerRemaining() {\n    buffer = { [^1] = 0, [^2] = 1, [^3] = 2 }\n};',
     },
     {
       id: 'cs13-overload-resolution-priority',
@@ -58,9 +64,130 @@ export const ERA_CONTENT = {
       cost: 1.2e14,
       effect: { type: 'lpsMult', value: 1.35 },
       effectText: 'All Contributors +35% LoC/s',
-      blurb: '',
-      snippet: '',
+      blurb: '[OverloadResolutionPriority(n)] steers the compiler to prefer one overload — callers get the better version on recompile, no breaking changes required.',
+      snippet: '[OverloadResolutionPriority(1)]\npublic void Log(ReadOnlySpan<char> msg) { }\npublic void Log(string msg) { }  // lower priority',
     },
   ],
-  questions: [],
+  questions: [
+    {
+      id: 'q-cs13-01',
+      era: 'cs13',
+      feature: 'cs13-params-collections',
+      text: 'In C# 13, which collection types can be used with the params modifier?',
+      options: [
+        'Only T[] arrays, as in earlier C# versions',
+        'Span<T>, ReadOnlySpan<T>, IEnumerable<T>, and other collection types',
+        'Only IList<T> and ICollection<T>',
+        'Only List<T> and arrays',
+      ],
+      answer: 1,
+    },
+    {
+      id: 'q-cs13-02',
+      era: 'cs13',
+      feature: 'cs13-params-collections',
+      text: 'What is the declared parameter type in the snippet\'s Concat method?',
+      options: [
+        'params T[]',
+        'params IEnumerable<T>',
+        'params ReadOnlySpan<T>',
+        'params List<T>',
+      ],
+      answer: 2,
+    },
+    {
+      id: 'q-cs13-03',
+      era: 'cs13',
+      feature: 'cs13-new-lock-object',
+      text: 'What does the C# 13 lock statement use when the target is a System.Threading.Lock?',
+      options: [
+        'Monitor.Enter and Monitor.Exit as before',
+        'The new Lock.EnterScope() API instead of Monitor',
+        'Task.Run for asynchronous locking',
+        'Mutex.WaitOne from the operating system',
+      ],
+      answer: 1,
+    },
+    {
+      id: 'q-cs13-04',
+      era: 'cs13',
+      feature: 'cs13-new-lock-object',
+      text: 'What .NET version introduced System.Threading.Lock?',
+      options: ['.NET 7', '.NET 8', '.NET 9', '.NET 10'],
+      answer: 2,
+    },
+    {
+      id: 'q-cs13-05',
+      era: 'cs13',
+      feature: 'cs13-escape-sequence-e',
+      text: 'Which Unicode code point does the \\e escape sequence represent?',
+      options: ['U+0008 (Backspace)', 'U+001B (ESCAPE)', 'U+000A (Line Feed)', 'U+001C (File Separator)'],
+      answer: 1,
+    },
+    {
+      id: 'q-cs13-06',
+      era: 'cs13',
+      feature: 'cs13-escape-sequence-e',
+      text: 'Why is \\e preferred over \\x1b in C# 13?',
+      options: [
+        '\\x1b is not a valid escape sequence',
+        '\\x1b could absorb following hex digits into the sequence unintentionally',
+        '\\e produces a smaller binary',
+        '\\x1b only works inside string interpolation',
+      ],
+      answer: 1,
+    },
+    {
+      id: 'q-cs13-07',
+      era: 'cs13',
+      feature: 'cs13-partial-properties',
+      text: 'In C# 13 partial properties, what is the "declaring declaration"?',
+      options: [
+        'The declaration that includes get/set accessor bodies',
+        'The declaration with no accessor body, treated as the signature only',
+        'The declaration in a separate assembly',
+        'The declaration marked with the [Partial] attribute',
+      ],
+      answer: 1,
+    },
+    {
+      id: 'q-cs13-08',
+      era: 'cs13',
+      feature: 'cs13-implicit-index-initializers',
+      text: 'What does the ^ operator mean when used as [^1] in an object initializer?',
+      options: [
+        'Bitwise XOR of index 1',
+        'The element at index 1 from the start',
+        'The last element (index from the end)',
+        'A nullable index reference',
+      ],
+      answer: 2,
+    },
+    {
+      id: 'q-cs13-09',
+      era: 'cs13',
+      feature: 'cs13-overload-resolution-priority',
+      text: 'How does [OverloadResolutionPriority] affect overload selection?',
+      options: [
+        'The compiler errors if two overloads share the same name',
+        'The overload with the highest priority value is preferred by the compiler',
+        'The attribute makes an overload invisible to external callers',
+        'The attribute replaces the deprecated [Obsolete] attribute',
+      ],
+      answer: 1,
+    },
+    {
+      id: 'q-cs13-10',
+      era: 'cs13',
+      feature: 'cs13-overload-resolution-priority',
+      text: 'In the snippet, which Log overload will the compiler prefer?',
+      options: [
+        'Log(string msg) because string is simpler',
+        'Log(ReadOnlySpan<char> msg) because it has priority 1',
+        'Both are equally preferred — the compiler picks randomly',
+        'Neither; the code will not compile due to ambiguity',
+      ],
+      answer: 1,
+    },
+  ],
 }
