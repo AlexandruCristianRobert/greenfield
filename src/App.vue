@@ -8,15 +8,20 @@ import EraPanel from './components/EraPanel.vue'
 import PrToast from './components/PrToast.vue'
 import PrModal from './components/PrModal.vue'
 import NuggetSprite from './components/NuggetSprite.vue'
+import AchievementToast from './components/AchievementToast.vue'
+import OfflineModal from './components/OfflineModal.vue'
 import { useGameStore } from './stores/game.js'
 import { useMetaStore } from './stores/meta.js'
 import { useEventsStore } from './stores/events.js'
+import { useAwardsStore } from './stores/awards.js'
 
 const game = useGameStore()
 const meta = useMetaStore()
 const events = useEventsStore()
+const awards = useAwardsStore()
 
 let tickHandle, saveHandle, cloudHandle, secondHandle, lastTick
+let tickCount = 0
 
 function onBeforeUnload() {
   meta.saveLocal()
@@ -38,7 +43,11 @@ onMounted(async () => {
   }, 100)
   saveHandle = setInterval(() => meta.saveLocal(), 30_000)
   cloudHandle = setInterval(() => meta.syncCloud(), 300_000)
-  secondHandle = setInterval(() => events.tick(Date.now()), 1000)
+  secondHandle = setInterval(() => {
+    events.tick(Date.now())
+    tickCount++
+    if (tickCount % 5 === 0) awards.evaluate()
+  }, 1000)
   window.addEventListener('beforeunload', onBeforeUnload)
   document.addEventListener('visibilitychange', onVisibilityChange)
 })
@@ -65,6 +74,8 @@ function onSaveName(name) {
   <PrToast />
   <PrModal />
   <NuggetSprite />
+  <AchievementToast />
+  <OfflineModal />
   <!-- Gate on booted so clicks can't land before the saved state is applied -->
   <main v-if="meta.booted" class="layout">
     <section class="pane">

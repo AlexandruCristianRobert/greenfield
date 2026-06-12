@@ -5,12 +5,14 @@ import ContributorRow from './ContributorRow.vue'
 import FeatureList from './FeatureList.vue'
 import SkillTreePanel from './SkillTreePanel.vue'
 import EfPanel from './EfPanel.vue'
+import AwardsPanel from './AwardsPanel.vue'
 
 const TABS = [
   { id: 'contributors', label: 'Contributors' },
   { id: 'features', label: 'Features' },
   { id: 'data', label: 'Data' },
   { id: 'skills', label: 'Skills' },
+  { id: 'awards', label: 'Awards' },
 ]
 const active = ref('contributors')
 </script>
@@ -31,6 +33,7 @@ const active = ref('contributors')
     </div>
     <FeatureList v-else-if="active === 'features'" />
     <EfPanel v-else-if="active === 'data'" />
-    <SkillTreePanel v-else />
+    <SkillTreePanel v-else-if="active === 'skills'" />
+    <AwardsPanel v-else-if="active === 'awards'" />
   </div>
 </template>
