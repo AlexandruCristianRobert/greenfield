@@ -88,4 +88,13 @@ describe('syncCloud gating (Supabase configured)', () => {
     expect(await meta2.syncCloud()).toBe(true)
     expect(useGameStore().loc).toBe(50)
   })
+
+  it('treats an unparseable junk cloud row as no cloud save (overwrites it)', async () => {
+    const meta = useMetaStore()
+    meta.saveNickname('Tester')
+    fetchSave.mockResolvedValue({ ok: true, row: cloudRow('not even an object') })
+    upsertSave.mockResolvedValue(true)
+    expect(await meta.syncCloud()).toBe(true)
+    expect(upsertSave).toHaveBeenCalledTimes(1)
+  })
 })

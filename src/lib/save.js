@@ -15,6 +15,13 @@ export function buildSave({ game, shop, progress }) {
   }
 }
 
+// True only for a structurally-sane save written by a NEWER build — the one
+// case where a stale client must never overwrite the row. Unparseable junk
+// does NOT qualify: overwriting junk with a real save is recovery, not loss.
+export function isNewerVersion(raw) {
+  return Boolean(raw && typeof raw === 'object' && typeof raw.v === 'number' && raw.v > SAVE_VERSION)
+}
+
 export function migrate(raw) {
   if (!raw || typeof raw !== 'object' || typeof raw.v !== 'number') return null
   if (raw.v > SAVE_VERSION) return null // newer than this build understands

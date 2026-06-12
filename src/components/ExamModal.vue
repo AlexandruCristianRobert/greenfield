@@ -10,11 +10,15 @@ const progress = useProgressStore()
 const index = ref(0)
 const answers = ref([])
 const result = ref(null)
+let lastPickAt = 0
 
 const question = computed(() => props.drawn[index.value])
 
 function pick(optionIndex) {
   if (result.value) return // exam already graded — ignore stray clicks
+  const t = Date.now()
+  if (t - lastPickAt < 300) return // double-tap protection: a spam-click must not blind-answer the next question
+  lastPickAt = t
   answers.value[index.value] = optionIndex
   if (index.value < props.drawn.length - 1) {
     index.value += 1

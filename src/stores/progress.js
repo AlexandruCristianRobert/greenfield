@@ -109,10 +109,8 @@ export const useProgressStore = defineStore('progress', () => {
     if (result.passed) {
       if (!examsPassed.value.includes(currentEra.value.id)) examsPassed.value.push(currentEra.value.id)
       knowledge.value += 3
-      if (eraIndex.value < ERAS.length - 1) {
-        eraIndex.value += 1
-        releaseFunded.value = false
-      }
+      releaseFunded.value = false
+      if (eraIndex.value < ERAS.length - 1) eraIndex.value += 1
     } else {
       lastExamFailAt.value = Date.now()
     }
@@ -148,11 +146,16 @@ export const useProgressStore = defineStore('progress', () => {
     releaseFunded.value = Boolean(s.releaseFunded)
     for (const k of Object.keys(ownedCards)) delete ownedCards[k]
     for (const id of Object.keys(s.ownedCards || {})) if (KNOWN_CARD_IDS.has(id)) ownedCards[id] = true
-    examsPassed.value = (Array.isArray(s.examsPassed) ? s.examsPassed : []).filter((id) => KNOWN_ERA_IDS.has(id))
-    knowledge.value = toCount(s.knowledge)
+    examsPassed.value = [...new Set((Array.isArray(s.examsPassed) ? s.examsPassed : []).filter((id) => KNOWN_ERA_IDS.has(id)))]
+    knowledge.value = Math.min(toCount(s.knowledge), 10_000)
     for (const k of Object.keys(firstReads)) delete firstReads[k]
     for (const id of Object.keys(s.firstReads || {})) if (KNOWN_CARD_IDS.has(id)) firstReads[id] = true
     for (const b of SKILL_BRANCHES) skills[b.id] = Math.min(Math.floor(toCount(s.skills?.[b.id])), MAX_SKILL_NODES)
+    // A save can't allocate more than it earned — hostile or corrupt
+    // allocations reset rather than rendering negative free Knowledge.
+    if (allocatedKnowledge.value > knowledge.value) {
+      for (const b of SKILL_BRANCHES) skills[b.id] = 0
+    }
     // Clamp to the past: a future timestamp (hostile cloud save or clock skew)
     // would otherwise lock the exam cooldown forever.
     lastExamFailAt.value = Math.min(toCount(s.lastExamFailAt), Date.now())

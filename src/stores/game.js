@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { useShopStore } from './shop.js'
 import { useProgressStore } from './progress.js'
@@ -19,9 +19,15 @@ export const useGameStore = defineStore('game', () => {
     lifetimeLoc.value += amount
   }
 
-  function click() {
+  // What one click actually yields (base × card/skill multipliers) — the UI
+  // must show this number, not the raw base.
+  const effectiveClick = computed(() => {
     const progress = useProgressStore()
-    addLoc(clickPower.value * progress.mods.clickMult)
+    return clickPower.value * progress.mods.clickMult
+  })
+
+  function click() {
+    addLoc(effectiveClick.value)
   }
 
   function spend(amount) {
@@ -45,5 +51,5 @@ export const useGameStore = defineStore('game', () => {
     lifetimeLoc.value = toCount(slice.lifetimeLoc)
   }
 
-  return { loc, lifetimeLoc, clickPower, addLoc, click, spend, tick, toSave, hydrate }
+  return { loc, lifetimeLoc, clickPower, effectiveClick, addLoc, click, spend, tick, toSave, hydrate }
 })

@@ -16,7 +16,7 @@ _Avoid_: wall, boss
 The one-time LoC sink that ends an Era's economy. Must be re-funded every run, including after a Rewrite.
 
 **Certification Exam**:
-The 5–7 question quiz gating Era advancement. Requires the Release funded and ≥50% of the Era's Feature Cards owned; once passed, auto-passes in all future runs.
+The up-to-6-question quiz (fewer when few Feature Cards are owned) gating Era advancement. Requires the Release funded and ≥50% of the Era's Feature Cards owned; once passed, auto-passes in all future runs.
 _Avoid_: test, boss fight
 
 **Feature Card**:

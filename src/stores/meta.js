@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { keyOf } from '../lib/names.js'
-import { buildSave, applySave, readLocal, writeLocal, migrate } from '../lib/save.js'
+import { buildSave, applySave, readLocal, writeLocal, migrate, isNewerVersion } from '../lib/save.js'
 import { decideSource } from '../lib/cloud.js'
 import { hasSupabase, fetchSave, upsertSave } from '../lib/supabase.js'
 import { useGameStore } from './game.js'
@@ -56,7 +56,7 @@ export const useMetaStore = defineStore('meta', () => {
       const cloudSave = migrate(res.row?.save)
       // A row we can't migrate was written by a NEWER build — this stale client
       // must never upsert over it.
-      if (res.row && !cloudSave) return false
+      if (res.row && !cloudSave && isNewerVersion(res.row.save)) return false
       cloudReady.value = true
       if (cloudSave && !hadLocalAtBoot) {
         applySave(cloudSave, stores())
@@ -81,7 +81,7 @@ export const useMetaStore = defineStore('meta', () => {
         cloud = migrate(res.row?.save) ?? null
         // A row we can't migrate was written by a NEWER build — keep cloudReady
         // false so this stale client never upserts over it.
-        if (!res.row || cloud) cloudReady.value = true
+        if (!res.row || cloud || !isNewerVersion(res.row.save)) cloudReady.value = true
       }
     }
     const source = decideSource(local, cloud)

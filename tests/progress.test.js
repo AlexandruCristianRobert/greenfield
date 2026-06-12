@@ -111,7 +111,7 @@ describe('hydrate sanitization', () => {
     expect(progress.releaseFunded).toBe(true) // truthy coerced is fine
     expect(progress.ownedCards['fake-card']).toBeUndefined()
     expect(progress.examsPassed).toEqual(['cs2'])
-    expect(progress.skills.language).toBe(5)
+    expect(progress.skills.language).toBe(0) // reconciliation resets all skills: 99 nodes cost > 0 knowledge
     expect(progress.skills.hax).toBeUndefined()
   })
   it('round-trips toSave → hydrate', () => {
@@ -127,5 +127,16 @@ describe('hydrate sanitization', () => {
     expect(fresh.ownedCards['cs2-generics']).toBe(true)
     expect(fresh.knowledge).toBe(10)
     expect(fresh.skills.data).toBe(1)
+  })
+  it('resets skills when a save allocates more than it earned', () => {
+    const progress = useProgressStore()
+    progress.hydrate({ knowledge: 0, skills: { language: 5, data: 5, performance: 5, tooling: 5 } })
+    expect(progress.skills.language).toBe(0)
+    expect(progress.knowledgeFree).toBe(0)
+  })
+  it('dedupes examsPassed', () => {
+    const progress = useProgressStore()
+    progress.hydrate({ examsPassed: ['cs2', 'cs2', 'cs3'] })
+    expect(progress.examsPassed).toEqual(['cs2', 'cs3'])
   })
 })

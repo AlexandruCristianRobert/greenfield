@@ -2,12 +2,14 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useGameStore } from '../stores/game.js'
 import { useProgressStore } from '../stores/progress.js'
+import { useMetaStore } from '../stores/meta.js'
 import { formatNumber } from '../lib/format.js'
 import { EXAM_COOLDOWN_MS } from '../lib/exam.js'
 import ExamModal from './ExamModal.vue'
 
 const game = useGameStore()
 const progress = useProgressStore()
+const meta = useMetaStore()
 
 const drawn = ref(null)
 const now = ref(Date.now())
@@ -29,7 +31,7 @@ function startExam() {
 
 <template>
   <div class="era-panel card">
-    <ExamModal v-if="drawn" :drawn="drawn" @close="drawn = null" />
+    <ExamModal v-if="drawn" :drawn="drawn" @close="drawn = null; meta.saveLocal()" />
     <div class="era-title" :style="{ borderColor: progress.currentEra.color }">
       <strong>{{ progress.currentEra.csVersion }}</strong>
       <span class="muted">{{ progress.currentEra.name }} · {{ progress.currentEra.year }}</span>
