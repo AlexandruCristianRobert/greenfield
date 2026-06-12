@@ -181,3 +181,5 @@ body {
 .award.locked { opacity: 0.35; }
 .award-icon { font-size: 1.6rem; width: 36px; text-align: center; }
 .ach-toast { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); z-index: 45; display: flex; gap: 10px; align-items: center; border-color: var(--accent); }
+
+.modal-actions-row { display: flex; gap: 10px; justify-content: flex-end; }

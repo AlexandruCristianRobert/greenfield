@@ -5,6 +5,7 @@ import ClickTarget from './components/ClickTarget.vue'
 import ShopPanel from './components/ShopPanel.vue'
 import NicknameModal from './components/NicknameModal.vue'
 import EraPanel from './components/EraPanel.vue'
+import PrestigePanel from './components/PrestigePanel.vue'
 import PrToast from './components/PrToast.vue'
 import PrModal from './components/PrModal.vue'
 import NuggetSprite from './components/NuggetSprite.vue'
@@ -86,6 +87,7 @@ function onSaveName(name) {
     <section class="pane">
       <ClickTarget />
       <EraPanel />
+      <PrestigePanel />
     </section>
     <section class="pane"><ShopPanel /></section>
   </main>

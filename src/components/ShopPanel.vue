@@ -6,6 +6,7 @@ import FeatureList from './FeatureList.vue'
 import SkillTreePanel from './SkillTreePanel.vue'
 import EfPanel from './EfPanel.vue'
 import AwardsPanel from './AwardsPanel.vue'
+import PatternsPanel from './PatternsPanel.vue'
 
 const TABS = [
   { id: 'contributors', label: 'Contributors' },
@@ -13,6 +14,7 @@ const TABS = [
   { id: 'data', label: 'Data' },
   { id: 'skills', label: 'Skills' },
   { id: 'awards', label: 'Awards' },
+  { id: 'patterns', label: 'Patterns' },
 ]
 const active = ref('contributors')
 </script>
@@ -35,5 +37,6 @@ const active = ref('contributors')
     <EfPanel v-else-if="active === 'data'" />
     <SkillTreePanel v-else-if="active === 'skills'" />
     <AwardsPanel v-else-if="active === 'awards'" />
+    <PatternsPanel v-else-if="active === 'patterns'" />
   </div>
 </template>
