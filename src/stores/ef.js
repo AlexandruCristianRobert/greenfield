@@ -35,7 +35,8 @@ export const useEfStore = defineStore('ef', () => {
   const ratio = computed(() => {
     if (!currentTier.value) return 0
     const shop = useShopStore()
-    return Math.min(1, throughput.value / Math.max(shop.baseLps, 1))
+    if (shop.baseLps <= 0) return 0
+    return Math.min(1, throughput.value / shop.baseLps)
   })
   const dataMult = computed(() => (currentTier.value ? 1 + 2 * ratio.value : 1))
 
@@ -65,8 +66,8 @@ export const useEfStore = defineStore('ef', () => {
 
   function hydrate(slice) {
     const s = slice || {}
-    const n = Number(s.tierIndex)
-    tierIndex.value = Number.isInteger(n) ? Math.min(Math.max(n, -1), EF_TIERS.length - 1) : -1
+    const n = s.tierIndex
+    tierIndex.value = typeof n === 'number' && Number.isInteger(n) ? Math.min(Math.max(n, -1), EF_TIERS.length - 1) : -1
     for (const k of Object.keys(ownedCards)) delete ownedCards[k]
     for (const id of Object.keys(s.ownedCards || {})) if (CARD_BY_ID.has(id)) ownedCards[id] = true
     for (const k of Object.keys(firstReads)) delete firstReads[k]

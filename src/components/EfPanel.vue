@@ -5,6 +5,7 @@ import { useGameStore } from '../stores/game.js'
 import { useShopStore } from '../stores/shop.js'
 import { ERAS } from '../data/eras.js'
 import { efFeaturesOf } from '../data/efFeatures.js'
+import { EF_TIERS } from '../data/ef.js'
 import { formatNumber, formatRate } from '../lib/format.js'
 import FeatureCardItem from './FeatureCardItem.vue'
 
@@ -17,7 +18,9 @@ const requiredEraName = computed(() => {
   const era = ERAS.find((e) => e.id === ef.nextTier.requiresEra)
   return era ? era.csVersion : ''
 })
-const tierCards = computed(() => (ef.tierIndex >= 0 ? efFeaturesOf(ef.currentTier.id) : []))
+const unlockedTiers = computed(() =>
+  ef.tierIndex >= 0 ? EF_TIERS.slice(0, ef.tierIndex + 1).slice().reverse() : [],
+)
 </script>
 
 <template>
@@ -48,15 +51,17 @@ const tierCards = computed(() => (ef.tierIndex >= 0 ? efFeaturesOf(ef.currentTie
       <p v-if="ef.nextTier && !ef.nextTierUnlocked" class="muted ef-line">Requires the {{ requiredEraName }} era.</p>
     </div>
     <template v-if="ef.tierIndex >= 0">
-      <h3 class="era-heading">{{ ef.currentTier.name }} features</h3>
-      <FeatureCardItem
-        v-for="card in tierCards"
-        :key="card.id"
-        :card="card"
-        :owned="Boolean(ef.ownedCards[card.id])"
-        :affordable="game.loc >= card.cost"
-        @buy="ef.buyCard(card)"
-      />
+      <section v-for="tier in unlockedTiers" :key="tier.id" class="era-section">
+        <h3 class="era-heading">{{ tier.name }} features</h3>
+        <FeatureCardItem
+          v-for="card in efFeaturesOf(tier.id)"
+          :key="card.id"
+          :card="card"
+          :owned="Boolean(ef.ownedCards[card.id])"
+          :affordable="game.loc >= card.cost"
+          @buy="ef.buyCard(card)"
+        />
+      </section>
     </template>
   </div>
 </template>
