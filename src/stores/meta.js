@@ -6,6 +6,7 @@ import { decideSource } from '../lib/cloud.js'
 import { hasSupabase, fetchSave, upsertSave } from '../lib/supabase.js'
 import { useGameStore } from './game.js'
 import { useShopStore } from './shop.js'
+import { useProgressStore } from './progress.js'
 
 const NICKNAME_KEY = 'gf_nickname'
 
@@ -29,7 +30,7 @@ export const useMetaStore = defineStore('meta', () => {
   let hadLocalAtBoot = false
 
   function stores() {
-    return { game: useGameStore(), shop: useShopStore() }
+    return { game: useGameStore(), shop: useShopStore(), progress: useProgressStore() }
   }
 
   function saveNickname(name) {

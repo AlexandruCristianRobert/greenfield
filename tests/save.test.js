@@ -25,6 +25,11 @@ function fakeStores() {
       toSave() { return { owned: { ...this.state.owned } } },
       hydrate(s) { this.state = { owned: { ...(s.owned || {}) } } },
     },
+    progress: {
+      state: { knowledge: 7 },
+      toSave() { return { ...this.state } },
+      hydrate(s) { this.state = { ...s } },
+    },
   }
 }
 
@@ -61,6 +66,7 @@ describe('save round-trip', () => {
     expect(save.savedAt).toBeGreaterThan(0)
     expect(save.game.loc).toBe(50)
     expect(save.shop.owned.intern).toBe(3)
+    expect(save.progress.knowledge).toBe(7)
   })
   it('writeLocal/readLocal round-trips through localStorage', () => {
     const save = buildSave(fakeStores())
@@ -89,5 +95,13 @@ describe('save round-trip', () => {
     applySave(save, dst)
     expect(dst.game.state.loc).toBe(999)
     expect(dst.shop.state.owned.intern).toBe(3)
+    expect(dst.progress.state.knowledge).toBe(7)
+  })
+  it('migrates a v1 save by injecting an empty progress slice', () => {
+    const v1 = { v: 1, savedAt: 5, game: { loc: 9, lifetimeLoc: 9 }, shop: { owned: {} } }
+    const out = migrate(v1)
+    expect(out.v).toBe(SAVE_VERSION)
+    expect(out.progress).toEqual({})
+    expect(out.game.loc).toBe(9)
   })
 })
