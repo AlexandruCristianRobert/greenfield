@@ -299,12 +299,12 @@ describe('SKILL_BRANCHES', () => {
 
 ```js
 export const ERAS = [
-  { id: 'cs2', csVersion: 'C# 2',  year: 2005, name: 'The Generics Era', releaseCost: 500,   color: '#8a5a44' },
-  { id: 'cs3', csVersion: 'C# 3',  year: 2007, name: 'The LINQ Era',     releaseCost: 6_000, color: '#a07d3b' },
-  { id: 'cs4', csVersion: 'C# 4',  year: 2010, name: 'The Dynamic Era',  releaseCost: 7e4,   color: '#7d8a3b' },
-  { id: 'cs5', csVersion: 'C# 5',  year: 2012, name: 'The Async Era',    releaseCost: 8e5,   color: '#3b8a6e' },
-  { id: 'cs6', csVersion: 'C# 6',  year: 2015, name: 'The Roslyn Era',   releaseCost: 9e6,   color: '#3b6e8a' },
-  { id: 'cs7', csVersion: 'C# 7',  year: 2017, name: 'The Pattern Era',  releaseCost: 1e8,   color: '#5a3b8a' },
+  { id: 'cs2', csVersion: 'C# 2',  year: 2005, name: 'The Generics Era', releaseCost: 500,   color: '#d29b7c' },
+  { id: 'cs3', csVersion: 'C# 3',  year: 2007, name: 'The LINQ Era',     releaseCost: 6_000, color: '#d7b65f' },
+  { id: 'cs4', csVersion: 'C# 4',  year: 2010, name: 'The Dynamic Era',  releaseCost: 7e4,   color: '#a9c25f' },
+  { id: 'cs5', csVersion: 'C# 5',  year: 2012, name: 'The Async Era',    releaseCost: 8e5,   color: '#5fcf9f' },
+  { id: 'cs6', csVersion: 'C# 6',  year: 2015, name: 'The Roslyn Era',   releaseCost: 9e6,   color: '#72b8de' },
+  { id: 'cs7', csVersion: 'C# 7',  year: 2017, name: 'The Pattern Era',  releaseCost: 1e8,   color: '#b491e8' },
 ]
 ```
 
@@ -592,12 +592,17 @@ describe('era gate', () => {
     const drawn = progress.beginExam(() => 0.5)
     expect(drawn.length).toBeGreaterThanOrEqual(3)
     const perfect = drawn.map((q) => q.answer)
-    const result = progress.finishExam(drawn, perfect)
+    const result = progress.finishExam(perfect)
     expect(result.passed).toBe(true)
     expect(progress.examsPassed).toContain('cs2')
     expect(progress.eraIndex).toBe(1)
     expect(progress.releaseFunded).toBe(false)
     expect(progress.knowledge).toBe(3 + 3) // 3 first reads + 3 exam
+    expect(progress.finishExam(perfect)).toBe(null) // exam consumed — double-fire can't skip an era
+  })
+  it('finishExam without an active exam is a no-op', () => {
+    const progress = useProgressStore()
+    expect(progress.finishExam([0, 0, 0])).toBe(null)
   })
   it('failing sets the cooldown and does not advance', () => {
     const progress = useProgressStore()
@@ -607,7 +612,7 @@ describe('era gate', () => {
     buyEraCards(progress, game, 'cs2', 3)
     const drawn = progress.beginExam(() => 0.5)
     const allWrong = drawn.map((q) => (q.answer + 1) % 4)
-    const result = progress.finishExam(drawn, allWrong)
+    const result = progress.finishExam(allWrong)
     expect(result.passed).toBe(false)
     expect(progress.eraIndex).toBe(0)
     expect(progress.lastExamFailAt).toBeGreaterThan(0)
@@ -754,16 +759,25 @@ export const useProgressStore = defineStore('progress', () => {
     return true
   }
 
+  // The active exam lives in the STORE, not the component: finishExam grades
+  // only the store-held draw and consumes it, so a double-fire can't skip an
+  // era and a console call can't forge a pass with a fabricated exam.
+  // Not persisted: refreshing mid-exam abandons it (no fail recorded).
+  const activeExam = ref(null)
+
   function beginExam(rand = Math.random) {
+    if (activeExam.value) return activeExam.value
     if (allErasDone.value || !eligibility().eligible) return null
-    const owned = Object.keys(ownedCards)
-    const pool = poolFor(QUESTIONS, currentEra.value.id, owned)
+    const pool = poolFor(QUESTIONS, currentEra.value.id, Object.keys(ownedCards))
     if (pool.length === 0) return null
-    return drawExam(pool, rand)
+    activeExam.value = drawExam(pool, rand)
+    return activeExam.value
   }
 
-  function finishExam(drawn, answers) {
-    const result = gradeExam(drawn, answers)
+  function finishExam(answers) {
+    if (!activeExam.value) return null
+    const result = gradeExam(activeExam.value, answers)
+    activeExam.value = null
     if (result.passed) {
       if (!examsPassed.value.includes(currentEra.value.id)) examsPassed.value.push(currentEra.value.id)
       knowledge.value += 3
@@ -811,11 +825,13 @@ export const useProgressStore = defineStore('progress', () => {
     for (const k of Object.keys(firstReads)) delete firstReads[k]
     for (const id of Object.keys(s.firstReads || {})) if (KNOWN_CARD_IDS.has(id)) firstReads[id] = true
     for (const b of SKILL_BRANCHES) skills[b.id] = Math.min(Math.floor(toCount(s.skills?.[b.id])), MAX_SKILL_NODES)
-    lastExamFailAt.value = toCount(s.lastExamFailAt)
+    // Clamp to the past: a future timestamp (hostile cloud save or clock skew)
+    // would otherwise lock the exam cooldown forever.
+    lastExamFailAt.value = Math.min(toCount(s.lastExamFailAt), Date.now())
   }
 
   return {
-    eraIndex, releaseFunded, ownedCards, examsPassed, knowledge, firstReads, skills, lastExamFailAt,
+    eraIndex, releaseFunded, ownedCards, examsPassed, knowledge, firstReads, skills, lastExamFailAt, activeExam,
     currentEra, allErasDone, eraFeatures, ownedEraCount, mods, knowledgeFree, allocatedKnowledge, releaseCost,
     eligibility, buyCard, fundRelease, beginExam, finishExam, allocateSkill, toSave, hydrate,
   }
@@ -919,7 +935,7 @@ describe('modifier integration', () => {
     const progress = useProgressStore()
     progress.knowledge = 1
     progress.allocateSkill('performance') // costMult ×0.96
-    expect(shop.nextCostOf(CONTRIBUTORS[0])).toBe(Math.ceil(15 * 0.96))
+    expect(shop.nextCostOf(CONTRIBUTORS[1])).toBe(96) // junior: 100 × 0.96 — a value that actually differs unmodified
   })
 })
 ```
@@ -1175,11 +1191,12 @@ const result = ref(null)
 const question = computed(() => props.drawn[index.value])
 
 function pick(optionIndex) {
+  if (result.value) return // exam already graded — ignore stray clicks
   answers.value[index.value] = optionIndex
   if (index.value < props.drawn.length - 1) {
     index.value += 1
   } else {
-    result.value = progress.finishExam(props.drawn, answers.value)
+    result.value = progress.finishExam(answers.value)
   }
 }
 </script>
