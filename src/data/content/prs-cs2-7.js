@@ -86,7 +86,7 @@ export const PR_CONTENT = {
       snippet: 'var greeting = "Hello, C# 3";\nvar len = greeting.Length;\nConsole.WriteLine(len);',
       options: [
         'greeting is dynamic; prints 0',
-        'greeting is string; prints 12',
+        'greeting is string; prints 11',
         'Compile error: var cannot be used with string literals',
         'greeting is object; Length is not accessible',
       ],
