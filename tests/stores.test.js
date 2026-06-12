@@ -3,6 +3,8 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useGameStore } from '../src/stores/game.js'
 import { useShopStore } from '../src/stores/shop.js'
 import { CONTRIBUTORS } from '../src/data/contributors.js'
+import { useProgressStore } from '../src/stores/progress.js'
+import { featuresOf } from '../src/data/featuresLanguage.js'
 
 beforeEach(() => setActivePinia(createPinia()))
 
@@ -94,5 +96,33 @@ describe('shop store', () => {
     expect(shop.countOf('intern')).toBe(0)
     expect(shop.countOf('ghost')).toBe(0)
     expect(shop.lps).toBeGreaterThan(0)
+  })
+})
+
+describe('modifier integration', () => {
+  it('click power scales with clickMult mods', () => {
+    const game = useGameStore()
+    const progress = useProgressStore()
+    progress.knowledge = 1
+    progress.allocateSkill('language') // clickMult ×1.12
+    game.click()
+    expect(game.loc).toBeCloseTo(1.12)
+  })
+  it('lps scales with lpsMult mods', () => {
+    const game = useGameStore()
+    const shop = useShopStore()
+    const progress = useProgressStore()
+    shop.owned['junior'] = 10
+    const generics = featuresOf('cs2')[0] // lpsMult 1.25
+    game.addLoc(generics.cost)
+    progress.buyCard(generics)
+    expect(shop.lps).toBeCloseTo(10 * 1.25)
+  })
+  it('contributor costs scale with costMult mods', () => {
+    const shop = useShopStore()
+    const progress = useProgressStore()
+    progress.knowledge = 1
+    progress.allocateSkill('performance') // costMult ×0.96
+    expect(shop.nextCostOf(CONTRIBUTORS[1])).toBe(96) // junior: 100 × 0.96 — a value that actually differs unmodified
   })
 })

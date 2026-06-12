@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useShopStore } from './shop.js'
+import { useProgressStore } from './progress.js'
 
 // Saves can arrive from the world-writable cloud table — never trust them.
 function toCount(value) {
@@ -19,7 +20,8 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function click() {
-    addLoc(clickPower.value)
+    const progress = useProgressStore()
+    addLoc(clickPower.value * progress.mods.clickMult)
   }
 
   function spend(amount) {
