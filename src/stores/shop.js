@@ -4,6 +4,7 @@ import { CONTRIBUTORS } from '../data/contributors.js'
 import { costOf, totalLps } from '../lib/economy.js'
 import { useGameStore } from './game.js'
 import { useProgressStore } from './progress.js'
+import { useEfStore } from './ef.js'
 
 // Saves can arrive from the world-writable cloud table — never trust them.
 function toCount(value) {
@@ -14,9 +15,15 @@ function toCount(value) {
 export const useShopStore = defineStore('shop', () => {
   const owned = reactive({}) // { [contributorId]: count }
 
-  const lps = computed(() => {
+  // Steady production before the Data multiplier — also the EF track's emission.
+  const baseLps = computed(() => {
     const progress = useProgressStore()
     return totalLps(CONTRIBUTORS, owned) * progress.mods.lpsMult
+  })
+
+  const lps = computed(() => {
+    const ef = useEfStore()
+    return baseLps.value * ef.dataMult
   })
 
   function countOf(id) {
@@ -47,5 +54,5 @@ export const useShopStore = defineStore('shop', () => {
     }
   }
 
-  return { owned, lps, countOf, nextCostOf, buy, toSave, hydrate }
+  return { owned, baseLps, lps, countOf, nextCostOf, buy, toSave, hydrate }
 })
