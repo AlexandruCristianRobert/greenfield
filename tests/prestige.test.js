@@ -23,12 +23,12 @@ beforeEach(() => {
 })
 
 describe('blueprintsFor', () => {
-  it('is the floored cube root of run lifetime / 1e9', () => {
+  it('is the floored cube root of run lifetime / 1e14', () => {
     expect(blueprintsFor(0)).toBe(0)
-    expect(blueprintsFor(999_999_999)).toBe(0)
-    expect(blueprintsFor(1e9)).toBe(1)
-    expect(blueprintsFor(8e9)).toBe(2)
-    expect(blueprintsFor(1e12)).toBe(10)
+    expect(blueprintsFor(1e14 - 1)).toBe(0)
+    expect(blueprintsFor(1e14)).toBe(1)
+    expect(blueprintsFor(8e14)).toBe(2)
+    expect(blueprintsFor(1e17)).toBe(10)
     expect(blueprintsFor(-5)).toBe(0)
     expect(blueprintsFor(NaN)).toBe(0)
   })
@@ -68,7 +68,7 @@ describe('prestige store', () => {
     const progress = useProgressStore()
     const ef = useEfStore()
     // build a run worth 8 blueprints with some owned state
-    game.addLoc(512e9)
+    game.addLoc(512e14)
     shop.owned['junior'] = 30
     const card = featuresOf('cs2')[0]
     progress.hydrate({ eraIndex: 4, examsPassed: ['cs2', 'cs3'], knowledge: 12, releaseFunded: true, ownedCards: { [card.id]: true }, firstReads: { [card.id]: true }, skills: { language: 2, data: 0, performance: 0, tooling: 0 } })
@@ -119,7 +119,7 @@ describe('prestige store', () => {
   it('meta.performRewrite persists the reset state', async () => {
     const meta = useMetaStore()
     const game = useGameStore()
-    game.addLoc(1e9)
+    game.addLoc(1e14)
     expect(meta.performRewrite(() => 0)).toBe(true)
     const saved = JSON.parse(localStorage.getItem('gf_save'))
     expect(saved.prestige.blueprints).toBe(1)

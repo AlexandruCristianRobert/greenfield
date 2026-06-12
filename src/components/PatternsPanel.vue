@@ -7,7 +7,7 @@ const prestige = usePrestigeStore()
 
 <template>
   <div class="shop-list">
-    <p class="knowledge-line">📐 Blueprints: <strong>{{ prestige.blueprints }}</strong> · earned via the Rewrite (∛ of run LoC / 1B)</p>
+    <p class="knowledge-line">📐 Blueprints: <strong>{{ prestige.blueprints }}</strong> · earned via the Rewrite (∛ of run LoC / 100T)</p>
     <p class="muted">Patterns are permanent — they survive every Rewrite.</p>
     <div v-for="p in PATTERNS" :key="p.id" class="card skill-branch">
       <div class="skill-head">

@@ -15,6 +15,6 @@ const confirming = ref(false)
     <button class="btn btn-primary" :disabled="prestige.pendingBlueprints < 1" @click="confirming = true">
       🌱 Rewrite — bank {{ prestige.pendingBlueprints }} Blueprint{{ prestige.pendingBlueprints === 1 ? '' : 's' }}
     </button>
-    <p v-if="prestige.pendingBlueprints < 1" class="muted ef-line">Reach 1B run LoC to unlock the next Rewrite.</p>
+    <p v-if="prestige.pendingBlueprints < 1" class="muted ef-line">Reach 100T run LoC to unlock the next Rewrite.</p>
   </div>
 </template>
