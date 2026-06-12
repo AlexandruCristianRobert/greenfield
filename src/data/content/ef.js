@@ -1,4 +1,14 @@
-// EF content authored against learn.microsoft.com/ef in a research task
+// Sources:
+//   EF6 past releases: https://learn.microsoft.com/en-us/ef/ef6/what-is-new/past-releases
+//   EF Core 1.0:       https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-1.0
+//   EF Core 3.x:       https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-3.x/
+//   EF Core 6:         https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-6.0/whatsnew
+//   EF Core 7:         https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-7.0/whatsnew
+//   EF Core 8:         https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-8.0/whatsnew
+//   EF Core 9:         https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-9.0/whatsnew
+//   EF Core 10:        https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-10.0/whatsnew
+//   EF Core 11:        https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-11.0/whatsnew
+//   EF Core releases:  https://learn.microsoft.com/en-us/ef/core/what-is-new/
 export const EF_CONTENT = {
   features: [
     {
@@ -8,8 +18,8 @@ export const EF_CONTENT = {
       cost: 2.5e5,
       effect: { type: 'tpMult', value: 1.6 },
       effectText: 'Persistence throughput ×1.6',
-      blurb: '',
-      snippet: '',
+      blurb: 'Introduced in EF 4.3, Code-First Migrations incrementally evolve a database schema as your Code First model changes, removing manual SQL.',
+      snippet: 'dotnet ef migrations add AddBlogUrl\ndotnet ef database update',
     },
     {
       id: 'ef6-async-queries',
@@ -18,8 +28,8 @@ export const EF_CONTENT = {
       cost: 4e5,
       effect: { type: 'tpMult', value: 1.8 },
       effectText: 'Persistence throughput ×1.8',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF 6 added task-based async support via .NET 4.5, letting queries and SaveChanges free threads while the database responds.',
+      snippet: 'var blogs = await context.Blogs.Where(b => b.Rating > 3).ToListAsync();\nawait context.SaveChangesAsync();',
     },
     {
       id: 'efcore1-crossplatform',
@@ -28,8 +38,8 @@ export const EF_CONTENT = {
       cost: 1e7,
       effect: { type: 'tpMult', value: 1.6 },
       effectText: 'Persistence throughput ×1.6',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 1.0 targets .NET Standard 1.3, enabling data access on Windows, Linux, and macOS without any code changes.',
+      snippet: 'var blogs = await context.Blogs.Where(b => b.IsPublished).ToListAsync();',
     },
     {
       id: 'efcore1-inmemory-provider',
@@ -38,8 +48,8 @@ export const EF_CONTENT = {
       cost: 1.6e7,
       effect: { type: 'tpMult', value: 1.8 },
       effectText: 'Persistence throughput ×1.8',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 1.0 ships an InMemory database provider designed for fast unit tests that need no real database connection.',
+      snippet: 'var opts = new DbContextOptionsBuilder<AppCtx>().UseInMemoryDatabase("TestDb").Options;\nusing var ctx = new AppCtx(opts);',
     },
     {
       id: 'efcore3-linq-translation',
@@ -48,8 +58,8 @@ export const EF_CONTENT = {
       cost: 2e8,
       effect: { type: 'tpMult', value: 1.7 },
       effectText: 'Persistence throughput ×1.7',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 3.x rewrote the LINQ provider to generate one SQL statement per query and throw on untranslatable expressions, ending silent client-eval.',
+      snippet: 'var posts = await context.Posts.Where(p => p.Published && p.Author.IsActive).ToListAsync();',
     },
     {
       id: 'efcore3-interceptors',
@@ -58,8 +68,8 @@ export const EF_CONTENT = {
       cost: 3.2e8,
       effect: { type: 'tpMult', value: 1.8 },
       effectText: 'Persistence throughput ×1.8',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 3.x introduced interceptors so custom logic can inspect or modify commands, connections, and transactions before or after they execute.',
+      snippet: 'services.AddDbContext<Ctx>(b => b\n  .UseSqlServer(cs)\n  .AddInterceptors(new HintCommandInterceptor()));',
     },
     {
       id: 'efcore6-compiled-models',
@@ -68,8 +78,8 @@ export const EF_CONTENT = {
       cost: 4.5e9,
       effect: { type: 'tpMult', value: 1.8 },
       effectText: 'Persistence throughput ×1.8',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 6 compiled models pre-generate metadata at build time, cutting first-query startup by up to 10x on large models.',
+      snippet: 'dotnet ef dbcontext optimize --output-dir CompiledModels --namespace MyApp.CompiledModels',
     },
     {
       id: 'efcore6-temporal-tables',
@@ -78,8 +88,8 @@ export const EF_CONTENT = {
       cost: 7e9,
       effect: { type: 'tpMult', value: 1.7 },
       effectText: 'Persistence throughput ×1.7',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 6 maps SQL Server system-versioned temporal tables, letting you query point-in-time historical data with TemporalAsOf.',
+      snippet: 'var snap = await ctx.Employees.TemporalAsOf(asOf).SingleAsync(e => e.Id == id);',
     },
     {
       id: 'ef7-executeupdate',
@@ -88,8 +98,8 @@ export const EF_CONTENT = {
       cost: 1e11,
       effect: { type: 'tpMult', value: 2.0 },
       effectText: 'Persistence throughput ×2',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 7 added ExecuteUpdate and ExecuteDelete for bulk operations that hit the database directly, bypassing change tracking entirely.',
+      snippet: 'await ctx.Tags.Where(t => t.Archived).ExecuteDeleteAsync();\nawait ctx.Blogs.ExecuteUpdateAsync(s => s.SetProperty(b => b.Rating, 0));',
     },
     {
       id: 'ef7-json-columns',
@@ -98,8 +108,8 @@ export const EF_CONTENT = {
       cost: 1.6e11,
       effect: { type: 'tpMult', value: 1.8 },
       effectText: 'Persistence throughput ×1.8',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 7 maps owned .NET aggregates to relational JSON columns, enabling LINQ queries that translate to JSON_VALUE on the stored document.',
+      snippet: 'var hits = await ctx.Authors.Where(a => a.Contact.Address.City == "Oslo").ToListAsync();',
     },
     {
       id: 'ef8-complex-types',
@@ -108,8 +118,8 @@ export const EF_CONTENT = {
       cost: 2.5e12,
       effect: { type: 'tpMult', value: 1.9 },
       effectText: 'Persistence throughput ×1.9',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 8 introduced complex types — identity-free value objects stored as inline columns — enabling safe instance sharing that owned types could not support.',
+      snippet: '[ComplexType]\npublic record Address(string Street, string City, string PostCode);\n// maps to inline columns, no FK table',
     },
     {
       id: 'ef8-primitive-collections',
@@ -118,8 +128,8 @@ export const EF_CONTENT = {
       cost: 4e12,
       effect: { type: 'tpMult', value: 1.8 },
       effectText: 'Persistence throughput ×1.8',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 8 stores List<T> and arrays of primitive types as JSON columns and translates Contains/Any LINQ operations to efficient SQL.',
+      snippet: 'var pubs = await ctx.Pubs.Where(p => p.Beers.Contains("Heineken")).ToListAsync();',
     },
     {
       id: 'ef9-azure-cosmos',
@@ -128,8 +138,8 @@ export const EF_CONTENT = {
       cost: 6e13,
       effect: { type: 'tpMult', value: 1.8 },
       effectText: 'Persistence throughput ×1.8',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 9 rewrote the Cosmos provider: automatic partition-key extraction, single-document point reads, and greatly expanded LINQ translation cut RU cost.',
+      snippet: 'var s = await ctx.Sessions.Where(s => s.PartitionKey == pk && s.Id == id).SingleAsync();',
     },
     {
       id: 'ef9-linq-improvements',
@@ -138,8 +148,8 @@ export const EF_CONTENT = {
       cost: 9.5e13,
       effect: { type: 'tpMult', value: 1.9 },
       effectText: 'Persistence throughput ×1.9',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 9 expanded LINQ-to-SQL coverage with GroupBy aggregate push-down, parameterized collection strategy control, and dozens of new operator translations.',
+      snippet: 'var counts = await ctx.Posts.GroupBy(p => p.BlogId).Select(g => new{g.Key, N=g.Count()}).ToListAsync();',
     },
     {
       id: 'ef10-leftjoin',
@@ -148,8 +158,8 @@ export const EF_CONTENT = {
       cost: 1.5e15,
       effect: { type: 'tpMult', value: 1.9 },
       effectText: 'Persistence throughput ×1.9',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 10 recognizes the .NET 10 LeftJoin LINQ operator and translates it to SQL LEFT JOIN, replacing verbose SelectMany/GroupJoin/DefaultIfEmpty chains.',
+      snippet: 'var q = ctx.Students.LeftJoin(ctx.Depts, s => s.DeptId, d => d.Id, (s, d) => new{s.Name, Dept=d.Name ?? "[none]"});',
     },
     {
       id: 'ef10-named-query-filters',
@@ -158,8 +168,8 @@ export const EF_CONTENT = {
       cost: 2.4e15,
       effect: { type: 'tpMult', value: 1.9 },
       effectText: 'Persistence throughput ×1.9',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 10 lets you attach names to global query filters so individual filters can be disabled per-query without disabling all filters at once.',
+      snippet: 'modelBuilder.Entity<Blog>().HasQueryFilter("Soft", b => !b.IsDeleted);\nvar all = await ctx.Blogs.IgnoreQueryFilters(["Soft"]).ToListAsync();',
     },
     {
       id: 'ef11-preview',
@@ -168,8 +178,8 @@ export const EF_CONTENT = {
       cost: 4e16,
       effect: { type: 'tpMult', value: 2.2 },
       effectText: 'Persistence throughput ×2.2',
-      blurb: '',
-      snippet: '',
+      blurb: 'EF Core 11 (preview, November 2026) adds complex types on TPT/TPC inheritance, pruned to-one join SQL, vector indexes, and Cosmos transactional batches.',
+      snippet: 'modelBuilder.Entity<Animal>().UseTptMappingStrategy();\n// ComplexType on TPT now supported in EF 11',
     },
   ],
 }
