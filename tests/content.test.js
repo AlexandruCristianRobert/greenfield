@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { ERAS } from '../src/data/eras.js'
 import { SKILL_BRANCHES, MAX_SKILL_NODES, skillNodeCost } from '../src/data/skills.js'
-
-// Deviation (parallel-safety): EFFECT_TYPES declared locally until modifiers.js exists
-const EFFECT_TYPES = ['clickMult', 'lpsMult', 'costMult', 'releaseMult']
+import { EFFECT_TYPES } from '../src/lib/modifiers.js'
+import { LANGUAGE_FEATURES, featuresOf } from '../src/data/featuresLanguage.js'
+import { QUESTIONS } from '../src/data/questions.js'
 
 describe('ERAS', () => {
   it('has the six M2 eras in chronological order with rising Release costs', () => {
@@ -37,5 +37,25 @@ describe('SKILL_BRANCHES', () => {
     expect(MAX_SKILL_NODES).toBe(5)
     const fullTree = SKILL_BRANCHES.length * [0, 1, 2, 3, 4].reduce((s, i) => s + skillNodeCost(i), 0)
     expect(fullTree).toBe(60)
+  })
+})
+
+describe('LANGUAGE_FEATURES structure', () => {
+  it('has 36 cards, 6 per era, unique ids, era-prefixed', () => {
+    expect(LANGUAGE_FEATURES).toHaveLength(36)
+    expect(new Set(LANGUAGE_FEATURES.map((f) => f.id)).size).toBe(36)
+    for (const era of ERAS) expect(featuresOf(era.id)).toHaveLength(6)
+    for (const f of LANGUAGE_FEATURES) expect(f.id.startsWith(f.era + '-')).toBe(true)
+  })
+  it('costs rise within each era and effects use valid types', () => {
+    for (const era of ERAS) {
+      const cards = featuresOf(era.id)
+      for (let i = 1; i < cards.length; i++) expect(cards[i].cost).toBeGreaterThan(cards[i - 1].cost)
+      for (const c of cards) {
+        expect(EFFECT_TYPES).toContain(c.effect.type)
+        expect(c.effect.value).toBeGreaterThan(0)
+        expect(typeof c.effectText).toBe('string')
+      }
+    }
   })
 })
