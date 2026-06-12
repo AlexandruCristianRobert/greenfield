@@ -7,6 +7,7 @@ import { SKILL_BRANCHES, MAX_SKILL_NODES, skillNodeCost } from '../data/skills.j
 import { combineMods } from '../lib/modifiers.js'
 import { poolFor, drawExam, gradeExam, examEligibility } from '../lib/exam.js'
 import { useGameStore } from './game.js'
+import { usePrestigeStore } from './prestige.js'
 
 const KNOWN_CARD_IDS = new Set(LANGUAGE_FEATURES.map((f) => f.id))
 const KNOWN_ERA_IDS = new Set(ERAS.map((e) => e.id))
@@ -43,6 +44,7 @@ export const useProgressStore = defineStore('progress', () => {
         effects.push({ type: branch.effectType, value: branch.perNode })
       }
     }
+    effects.push(...usePrestigeStore().effects)
     return combineMods(effects)
   })
 
@@ -137,6 +139,15 @@ export const useProgressStore = defineStore('progress', () => {
     return true
   }
 
+  function rewriteReset() {
+    eraIndex.value = 0
+    releaseFunded.value = false
+    for (const k of Object.keys(ownedCards)) delete ownedCards[k]
+    activeExam.value = null
+    lastExamFailAt.value = 0
+    for (const b of SKILL_BRANCHES) skills[b.id] = 0
+  }
+
   function toSave() {
     return {
       eraIndex: eraIndex.value,
@@ -174,6 +185,6 @@ export const useProgressStore = defineStore('progress', () => {
   return {
     eraIndex, releaseFunded, ownedCards, examsPassed, knowledge, firstReads, skills, lastExamFailAt, activeExam,
     currentEra, allErasDone, eraFeatures, ownedEraCount, mods, knowledgeFree, allocatedKnowledge, releaseCost,
-    eligibility, buyCard, fundRelease, addKnowledge, beginExam, finishExam, allocateSkill, toSave, hydrate,
+    eligibility, buyCard, fundRelease, addKnowledge, beginExam, finishExam, allocateSkill, rewriteReset, toSave, hydrate,
   }
 })

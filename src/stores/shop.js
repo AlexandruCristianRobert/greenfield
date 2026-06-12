@@ -46,6 +46,10 @@ export const useShopStore = defineStore('shop', () => {
     return true
   }
 
+  function rewriteReset() {
+    for (const k of Object.keys(owned)) delete owned[k]
+  }
+
   function toSave() {
     return { owned: { ...owned } }
   }
@@ -58,5 +62,5 @@ export const useShopStore = defineStore('shop', () => {
     }
   }
 
-  return { owned, baseLps, lps, countOf, nextCostOf, buy, toSave, hydrate }
+  return { owned, baseLps, lps, countOf, nextCostOf, buy, rewriteReset, toSave, hydrate }
 })

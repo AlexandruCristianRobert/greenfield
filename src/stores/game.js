@@ -58,6 +58,12 @@ export const useGameStore = defineStore('game', () => {
     if (shop.lps > 0) addLoc(shop.lps * dtSeconds)
   }
 
+  function rewriteReset() {
+    loc.value = 0
+    lifetimeLoc.value = 0
+    combo.value = 0
+  }
+
   function toSave() {
     return { loc: loc.value, lifetimeLoc: lifetimeLoc.value }
   }
@@ -67,5 +73,5 @@ export const useGameStore = defineStore('game', () => {
     lifetimeLoc.value = toCount(slice.lifetimeLoc)
   }
 
-  return { loc, lifetimeLoc, clickPower, combo, comboMult, effectiveClick, addLoc, click, spend, decayCombo, tick, toSave, hydrate }
+  return { loc, lifetimeLoc, clickPower, combo, comboMult, effectiveClick, addLoc, click, spend, decayCombo, tick, rewriteReset, toSave, hydrate }
 })

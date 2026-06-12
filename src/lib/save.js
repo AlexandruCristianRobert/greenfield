@@ -2,10 +2,10 @@
 // the Supabase snapshot — bump SAVE_VERSION and add a migration step whenever
 // the shape changes. Layer-2 prestige fields will be added here in a later
 // milestone via migration, per the design spec.
-export const SAVE_VERSION = 3
+export const SAVE_VERSION = 4
 export const SAVE_KEY = 'gf_save'
 
-export function buildSave({ game, shop, progress, ef, awards }) {
+export function buildSave({ game, shop, progress, ef, awards, prestige }) {
   return {
     v: SAVE_VERSION,
     savedAt: Date.now(),
@@ -15,6 +15,7 @@ export function buildSave({ game, shop, progress, ef, awards }) {
     ef: ef.toSave(),
     achievements: awards.achievementsToSave(),
     stats: awards.statsToSave(),
+    prestige: prestige.toSave(),
   }
 }
 
@@ -31,15 +32,17 @@ export function migrate(raw) {
   let save = raw
   if (save.v === 1) save = { ...save, v: 2, progress: {} }
   if (save.v === 2) save = { ...save, v: 3, ef: {}, achievements: {}, stats: {} }
+  if (save.v === 3) save = { ...save, v: 4, prestige: {} }
   return save.v === SAVE_VERSION ? save : null
 }
 
-export function applySave(save, { game, shop, progress, ef, awards }) {
+export function applySave(save, { game, shop, progress, ef, awards, prestige }) {
   game.hydrate(save.game || {})
   shop.hydrate(save.shop || {})
   progress.hydrate(save.progress || {})
   ef.hydrate(save.ef || {})
   awards.hydrate(save.achievements || {}, save.stats || {})
+  prestige.hydrate(save.prestige || {})
 }
 
 export function writeLocal(save) {

@@ -41,6 +41,7 @@ function fakeStores() {
       statsToSave() { return { ...this.state.stats } },
       hydrate(a, s) { this.state = { unlocked: { ...(a.unlocked || {}) }, stats: { ...(s || {}) } } },
     },
+    prestige: { state: { blueprints: 4 }, toSave() { return { ...this.state } }, hydrate(s) { this.state = { ...s } } },
   }
 }
 
@@ -79,6 +80,7 @@ describe('save round-trip', () => {
     expect(save.shop.owned.intern).toBe(3)
     expect(save.progress.knowledge).toBe(7)
     expect(save.ef.tierIndex).toBe(2)
+    expect(save.prestige.blueprints).toBe(4)
   })
   it('writeLocal/readLocal round-trips through localStorage', () => {
     const save = buildSave(fakeStores())
@@ -123,6 +125,12 @@ describe('save round-trip', () => {
     expect(out.ef).toEqual({})
     expect(out.achievements).toEqual({})
     expect(out.stats).toEqual({})
+  })
+  it('migrates a v3 save by injecting the prestige slice', () => {
+    const v3 = { v: 3, savedAt: 5, game: {}, shop: {}, progress: {}, ef: {}, achievements: {}, stats: {} }
+    const out = migrate(v3)
+    expect(out.v).toBe(SAVE_VERSION)
+    expect(out.prestige).toEqual({})
   })
   it('buildSave/applySave round-trips awards slices', () => {
     const src = fakeStores()

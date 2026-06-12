@@ -9,6 +9,7 @@ import { useShopStore } from './shop.js'
 import { useProgressStore } from './progress.js'
 import { useEfStore } from './ef.js'
 import { useAwardsStore } from './awards.js'
+import { usePrestigeStore } from './prestige.js'
 
 const NICKNAME_KEY = 'gf_nickname'
 
@@ -33,7 +34,7 @@ export const useMetaStore = defineStore('meta', () => {
   let hadLocalAtBoot = false
 
   function stores() {
-    return { game: useGameStore(), shop: useShopStore(), progress: useProgressStore(), ef: useEfStore(), awards: useAwardsStore() }
+    return { game: useGameStore(), shop: useShopStore(), progress: useProgressStore(), ef: useEfStore(), awards: useAwardsStore(), prestige: usePrestigeStore() }
   }
 
   function saveNickname(name) {
@@ -109,5 +110,13 @@ export const useMetaStore = defineStore('meta', () => {
     booted.value = true
   }
 
-  return { nickname, booted, lastCloudSync, cloudReady, offlineReport, saveNickname, saveLocal, syncCloud, boot }
+  function performRewrite(rand = Math.random) {
+    const prestige = usePrestigeStore()
+    if (!prestige.doRewrite(rand)) return false
+    saveLocal()
+    syncCloud()
+    return true
+  }
+
+  return { nickname, booted, lastCloudSync, cloudReady, offlineReport, saveNickname, saveLocal, syncCloud, boot, performRewrite }
 })

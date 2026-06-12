@@ -7,6 +7,7 @@ import { combineMods } from '../lib/modifiers.js'
 import { useGameStore } from './game.js'
 import { useShopStore } from './shop.js'
 import { useProgressStore } from './progress.js'
+import { usePrestigeStore } from './prestige.js'
 
 const CARD_BY_ID = new Map(EF_FEATURES.map((f) => [f.id, f]))
 const ERA_INDEX = new Map(ERAS.map((e, i) => [e.id, i]))
@@ -27,6 +28,7 @@ export const useEfStore = defineStore('ef', () => {
   const throughput = computed(() => {
     if (!currentTier.value) return 0
     const effects = Object.keys(ownedCards).map((id) => CARD_BY_ID.get(id)?.effect).filter(Boolean)
+    effects.push(...usePrestigeStore().effects)
     return currentTier.value.baseThroughput * combineMods(effects).tpMult
   })
 
@@ -60,6 +62,11 @@ export const useEfStore = defineStore('ef', () => {
     return true
   }
 
+  function rewriteReset() {
+    tierIndex.value = -1
+    for (const k of Object.keys(ownedCards)) delete ownedCards[k]
+  }
+
   function toSave() {
     return { tierIndex: tierIndex.value, ownedCards: { ...ownedCards }, firstReads: { ...firstReads } }
   }
@@ -74,5 +81,5 @@ export const useEfStore = defineStore('ef', () => {
     for (const id of Object.keys(s.firstReads || {})) if (CARD_BY_ID.has(id)) firstReads[id] = true
   }
 
-  return { tierIndex, ownedCards, firstReads, currentTier, nextTier, nextTierUnlocked, throughput, ratio, dataMult, buyNextTier, buyCard, toSave, hydrate }
+  return { tierIndex, ownedCards, firstReads, currentTier, nextTier, nextTierUnlocked, throughput, ratio, dataMult, buyNextTier, buyCard, rewriteReset, toSave, hydrate }
 })
