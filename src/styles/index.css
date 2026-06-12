@@ -164,3 +164,10 @@ body {
 .ef-line { margin: 0; }
 .persistence-bar { height: 10px; border-radius: 5px; background: var(--bg); border: 1px solid var(--border); overflow: hidden; }
 .persistence-fill { height: 100%; background: var(--accent); transition: width 300ms ease; }
+
+/* ── events ── */
+.pr-toast { position: fixed; right: 18px; bottom: 18px; z-index: 40; display: flex; flex-direction: column; gap: 4px; cursor: pointer; text-align: left; border-color: var(--accent-2); }
+.nugget { position: fixed; z-index: 39; font-size: 2.2rem; background: none; border: none; cursor: pointer; filter: drop-shadow(0 0 8px gold); animation: bob 1.2s ease-in-out infinite alternate; }
+@keyframes bob { from { transform: translateY(-4px); } to { transform: translateY(4px); } }
+.buff-chip { border-radius: 999px; padding: 2px 10px; font-size: 0.85rem; border: 1px solid var(--accent); }
+.buff-chip.conflict { border-color: var(--bad); }
