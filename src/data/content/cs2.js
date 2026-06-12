@@ -67,7 +67,7 @@ export const ERA_CONTENT = {
       effect: { type: 'clickMult', value: 1.15 },
       effectText: 'Click power +15%',
       blurb: 'A class marked static cannot be instantiated and must contain only static members — the compiler enforces this, making utility helpers like Math explicit.',
-      snippet: 'public static class MathHelper {\n    public static double Square(double x) => x * x;\n}\ndouble r = MathHelper.Square(5);',
+      snippet: 'public static class MathHelper {\n    public static double Square(double x) { return x * x; }\n}\ndouble r = MathHelper.Square(5);',
     },
   ],
   questions: [

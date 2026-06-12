@@ -37,7 +37,7 @@ export const ERA_CONTENT = {
       effect: { type: 'lpsMult', value: 1.20 },
       effectText: 'All Contributors +20% LoC/s',
       blurb: 'Static methods with a this-qualified first parameter appear as instance methods on any type, letting LINQ operators extend IEnumerable<T> without modifying it.',
-      snippet: 'public static class Ext {\n    public static int WordCount(this string s) =>\n        s.Split(\' \').Length;\n}\nint n = "hello world".WordCount();',
+      snippet: 'public static class Ext {\n    public static int WordCount(this string s)\n    { return s.Split(\' \').Length; }\n}\nint n = "hello world".WordCount();',
     },
     {
       id: 'cs3-var',

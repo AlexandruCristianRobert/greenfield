@@ -66,7 +66,7 @@ export const ERA_CONTENT = {
       effect: { type: 'lpsMult', value: 1.15 },
       effectText: 'All Contributors +15% LoC/s',
       blurb: 'The when keyword adds a Boolean condition to a catch clause; the handler only runs if the condition is true, preserving the original call stack.',
-      snippet: 'try { /* work */ }\ncatch (HttpException e) when (e.StatusCode == 404)\n{\n    Handle404();\n}',
+      snippet: 'try { /* work */ }\ncatch (HttpRequestException e) when (e.Message.Contains("404"))\n{\n    Handle404();\n}',
     },
   ],
   questions: [
