@@ -1,24 +1,21 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { useGameStore } from '../stores/game.js'
-import { useProgressStore } from '../stores/progress.js'
+import { ref } from 'vue'
 import { formatNumber } from '../lib/format.js'
 
-const props = defineProps({ card: { type: Object, required: true } })
-
-const game = useGameStore()
-const progress = useProgressStore()
+defineProps({
+  card: { type: Object, required: true },
+  owned: { type: Boolean, required: true },
+  affordable: { type: Boolean, required: true },
+})
+const emit = defineEmits(['buy'])
 const showSnippet = ref(false)
-
-const owned = computed(() => Boolean(progress.ownedCards[props.card.id]))
-const affordable = computed(() => game.loc >= props.card.cost)
 </script>
 
 <template>
   <div class="feature-card card" :class="{ owned }">
     <div class="feature-head">
       <strong>{{ card.name }}</strong>
-      <button v-if="!owned" class="btn" :disabled="!affordable" @click="progress.buyCard(card)">
+      <button v-if="!owned" class="btn" :disabled="!affordable" @click="emit('buy')">
         {{ formatNumber(card.cost) }} LoC
       </button>
       <span v-else class="feature-owned">✓ learned</span>

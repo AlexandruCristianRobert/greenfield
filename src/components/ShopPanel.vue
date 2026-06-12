@@ -4,10 +4,12 @@ import { CONTRIBUTORS } from '../data/contributors.js'
 import ContributorRow from './ContributorRow.vue'
 import FeatureList from './FeatureList.vue'
 import SkillTreePanel from './SkillTreePanel.vue'
+import EfPanel from './EfPanel.vue'
 
 const TABS = [
   { id: 'contributors', label: 'Contributors' },
   { id: 'features', label: 'Features' },
+  { id: 'data', label: 'Data' },
   { id: 'skills', label: 'Skills' },
 ]
 const active = ref('contributors')
@@ -28,6 +30,7 @@ const active = ref('contributors')
       <ContributorRow v-for="c in CONTRIBUTORS" :key="c.id" :contributor="c" />
     </div>
     <FeatureList v-else-if="active === 'features'" />
+    <EfPanel v-else-if="active === 'data'" />
     <SkillTreePanel v-else />
   </div>
 </template>

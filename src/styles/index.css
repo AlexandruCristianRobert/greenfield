@@ -158,3 +158,9 @@ body {
 .exam-progress { margin: 0; }
 .exam-question { font-size: 1.05rem; margin: 0; }
 .exam-option { text-align: left; }
+
+/* ── EF data track ── */
+.ef-status { display: flex; flex-direction: column; gap: 8px; }
+.ef-line { margin: 0; }
+.persistence-bar { height: 10px; border-radius: 5px; background: var(--bg); border: 1px solid var(--border); overflow: hidden; }
+.persistence-fill { height: 100%; background: var(--accent); transition: width 300ms ease; }
