@@ -68,6 +68,22 @@ describe('era gate', () => {
     const progress = useProgressStore()
     expect(progress.finishExam([0, 0, 0])).toBe(null)
   })
+  it('funding the Release of an already-certified era advances without an exam', () => {
+    const progress = useProgressStore()
+    const game = useGameStore()
+    progress.hydrate({ eraIndex: 0, examsPassed: ['cs2'] })
+    game.addLoc(1e6)
+    expect(progress.fundRelease()).toBe(true)
+    expect(progress.eraIndex).toBe(1)
+    expect(progress.releaseFunded).toBe(false)
+  })
+  it('addKnowledge floors junk to non-negative integers', () => {
+    const progress = useProgressStore()
+    progress.addKnowledge(2.9)
+    progress.addKnowledge(-5)
+    progress.addKnowledge('x')
+    expect(progress.knowledge).toBe(2)
+  })
   it('failing sets the cooldown and does not advance', () => {
     const progress = useProgressStore()
     const game = useGameStore()

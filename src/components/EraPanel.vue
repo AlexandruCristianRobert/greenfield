@@ -22,6 +22,7 @@ const eligibility = computed(() => progress.eligibility(now.value))
 const cooldownLeft = computed(() =>
   Math.max(0, Math.ceil((progress.lastExamFailAt + EXAM_COOLDOWN_MS - now.value) / 1000)),
 )
+const certified = computed(() => progress.examsPassed.includes(progress.currentEra.id))
 
 function startExam() {
   const d = progress.beginExam()
@@ -38,7 +39,7 @@ function startExam() {
     </div>
 
     <template v-if="progress.allErasDone">
-      <p class="era-done">🏆 All M2 eras certified — C# 8+ arrives in the next update.</p>
+      <p class="era-done">🏆 All eras certified — you've reached the cutting edge of C#.</p>
     </template>
     <template v-else>
       <p class="muted era-cards-line">
@@ -51,7 +52,7 @@ function startExam() {
         :disabled="game.loc < progress.releaseCost"
         @click="progress.fundRelease()"
       >
-        🚀 Fund the Release — {{ formatNumber(progress.releaseCost) }} LoC
+        🚀 Fund the Release — {{ formatNumber(progress.releaseCost) }} LoC{{ certified ? ' (already certified — advance)' : '' }}
       </button>
 
       <template v-else>

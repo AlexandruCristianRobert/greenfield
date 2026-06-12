@@ -5,9 +5,15 @@ import { EFFECT_TYPES } from '../src/lib/modifiers.js'
 import { LANGUAGE_FEATURES, featuresOf } from '../src/data/featuresLanguage.js'
 import { QUESTIONS } from '../src/data/questions.js'
 
+// AUTHORED expands to all eras in the M3a fact-check task — do not ship without it.
+const AUTHORED = new Set(['cs2', 'cs3', 'cs4', 'cs5', 'cs6', 'cs7'])
+
 describe('ERAS', () => {
-  it('has the six M2 eras in chronological order with rising Release costs', () => {
-    expect(ERAS.map((e) => e.id)).toEqual(['cs2', 'cs3', 'cs4', 'cs5', 'cs6', 'cs7'])
+  it('has the 13 M3a eras in chronological order with rising Release costs', () => {
+    expect(ERAS.map((e) => e.id)).toEqual([
+      'cs2', 'cs3', 'cs4', 'cs5', 'cs6', 'cs7',
+      'cs8', 'cs9', 'cs10', 'cs11', 'cs12', 'cs13', 'cs14',
+    ])
     for (let i = 1; i < ERAS.length; i++) {
       expect(ERAS[i].releaseCost).toBeGreaterThan(ERAS[i - 1].releaseCost)
       expect(ERAS[i].year).toBeGreaterThan(ERAS[i - 1].year)
@@ -41,9 +47,9 @@ describe('SKILL_BRANCHES', () => {
 })
 
 describe('LANGUAGE_FEATURES structure', () => {
-  it('has 36 cards, 6 per era, unique ids, era-prefixed', () => {
-    expect(LANGUAGE_FEATURES).toHaveLength(36)
-    expect(new Set(LANGUAGE_FEATURES.map((f) => f.id)).size).toBe(36)
+  it('has 78 cards, 6 per era, unique ids, era-prefixed', () => {
+    expect(LANGUAGE_FEATURES).toHaveLength(78)
+    expect(new Set(LANGUAGE_FEATURES.map((f) => f.id)).size).toBe(78)
     for (const era of ERAS) expect(featuresOf(era.id)).toHaveLength(6)
     for (const f of LANGUAGE_FEATURES) expect(f.id.startsWith(f.era + '-')).toBe(true)
   })
@@ -62,7 +68,7 @@ describe('LANGUAGE_FEATURES structure', () => {
 
 describe('QUESTIONS content', () => {
   it('has exactly 10 per era, valid shape, answerable feature refs', () => {
-    for (const era of ERAS) {
+    for (const era of ERAS.filter((e) => AUTHORED.has(e.id))) {
       const qs = QUESTIONS.filter((q) => q.era === era.id)
       expect(qs, era.id).toHaveLength(10)
       const perFeature = {}
@@ -82,8 +88,8 @@ describe('QUESTIONS content', () => {
       }
     }
   })
-  it('every card has non-empty blurb and snippet within length caps', () => {
-    for (const f of LANGUAGE_FEATURES) {
+  it('every authored card has non-empty blurb and snippet within length caps', () => {
+    for (const f of LANGUAGE_FEATURES.filter((f) => AUTHORED.has(f.era))) {
       expect(f.blurb.length, f.id).toBeGreaterThan(20)
       expect(f.blurb.length, f.id).toBeLessThanOrEqual(160)
       expect(f.snippet.length, f.id).toBeGreaterThan(10)

@@ -83,8 +83,18 @@ export const useProgressStore = defineStore('progress', () => {
     if (releaseFunded.value || allErasDone.value) return false
     const game = useGameStore()
     if (!game.spend(releaseCost.value)) return false
+    // Instant-pass: an era whose exam is already certified (M2→M3 transition,
+    // M4 Rewrite replays) needs only the Release — advance immediately.
+    if (examsPassed.value.includes(currentEra.value.id)) {
+      if (eraIndex.value < ERAS.length - 1) eraIndex.value += 1
+      return true
+    }
     releaseFunded.value = true
     return true
+  }
+
+  function addKnowledge(n) {
+    knowledge.value += Math.max(0, Math.floor(Number(n) || 0))
   }
 
   // The active exam lives in the STORE, not the component: finishExam grades
@@ -164,6 +174,6 @@ export const useProgressStore = defineStore('progress', () => {
   return {
     eraIndex, releaseFunded, ownedCards, examsPassed, knowledge, firstReads, skills, lastExamFailAt, activeExam,
     currentEra, allErasDone, eraFeatures, ownedEraCount, mods, knowledgeFree, allocatedKnowledge, releaseCost,
-    eligibility, buyCard, fundRelease, beginExam, finishExam, allocateSkill, toSave, hydrate,
+    eligibility, buyCard, fundRelease, addKnowledge, beginExam, finishExam, allocateSkill, toSave, hydrate,
   }
 })
