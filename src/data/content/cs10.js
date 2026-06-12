@@ -35,7 +35,7 @@ export const ERA_CONTENT = {
       cost: 2.7e10,
       effect: { type: 'lpsMult', value: 1.45 },
       effectText: 'All Contributors +45% LoC/s',
-      blurb: 'Record structs (record struct) bring value-based equality and with-expression support to value types, combining the performance of structs with record semantics.',
+      blurb: 'Record structs bring value-based equality and with-expression support to value types, combining the performance of structs with record semantics.',
       snippet: 'public readonly record struct Point(double X, double Y);\nvar p1 = new Point(1, 2);\nvar p2 = p1 with { X = 5 };\nConsole.WriteLine(p1 == p2); // False',
     },
     {
@@ -45,7 +45,7 @@ export const ERA_CONTENT = {
       cost: 3.7e10,
       effect: { type: 'lpsMult', value: 1.35 },
       effectText: 'All Contributors +35% LoC/s',
-      blurb: 'C# 10 lambdas gain natural type inference (compiler picks Func/Action), explicit return type declarations, and support for attributes, reducing explicit delegate boilerplate.',
+      blurb: 'C# 10 lambdas gain a natural type (the compiler infers Func/Action), explicit return types, and attribute support, reducing delegate boilerplate.',
       snippet: 'var parse = (string s) => int.Parse(s); // Func<string,int> inferred\nvar choose = object (bool b) => b ? 1 : "two"; // explicit return type\nFunc<string?,int?> f = [ProvidesNullCheck](s) => s is null ? null : 0;',
     },
     {
@@ -55,7 +55,7 @@ export const ERA_CONTENT = {
       cost: 5e10,
       effect: { type: 'clickMult', value: 1.30 },
       effectText: 'Click power +30%',
-      blurb: 'In C# 10, interpolated strings can be const when all interpolated placeholders are themselves constant strings, enabling attribute arguments and case labels to use interpolation.',
+      blurb: 'In C# 10, an interpolated string can be const when every placeholder is itself a constant string, enabling use in attribute arguments and case labels.',
       snippet: 'const string prefix = "Error";\nconst string msg = $"{prefix}: something failed";\n// msg is a compile-time constant',
     },
     {
@@ -65,7 +65,7 @@ export const ERA_CONTENT = {
       cost: 7e10,
       effect: { type: 'lpsMult', value: 1.30 },
       effectText: 'All Contributors +30% LoC/s',
-      blurb: 'Extended property patterns let you match nested properties with dot notation (e.g. { Address.City: "London" }) inside a single property pattern, reducing nesting.',
+      blurb: 'Extended property patterns let you match nested properties with dot notation (e.g. { Address.City: "London" }) inside a single property pattern.',
       snippet: 'bool IsLondonOrder(Order o) =>\n    o is { Address.City: "London", Status: OrderStatus.Open };\n// Equivalent to nested: { Address: { City: "London" }, ... }',
     },
   ],

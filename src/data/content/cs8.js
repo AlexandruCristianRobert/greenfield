@@ -34,7 +34,7 @@ export const ERA_CONTENT = {
       cost: 1.9e8,
       effect: { type: 'clickMult', value: 1.40 },
       effectText: 'Click power +40%',
-      blurb: 'Switch expressions are a concise expression-based form of the switch statement, using => arms and a _ discard arm, returning a value with exhaustiveness checking.',
+      blurb: 'Switch expressions are a concise expression form of the switch statement, using => arms and a _ discard arm, returning a value with exhaustiveness checking.',
       snippet: 'string label = day switch\n{\n    DayOfWeek.Monday => "Mon",\n    DayOfWeek.Friday => "Fri",\n    _ => "Other"\n};',
     },
     {
@@ -54,7 +54,7 @@ export const ERA_CONTENT = {
       cost: 3.6e8,
       effect: { type: 'costMult', value: 0.92 },
       effectText: 'Contributor costs −8%',
-      blurb: 'Interfaces can now declare method bodies as default implementations, allowing authors to add new members to a published interface without breaking existing implementors.',
+      blurb: 'Interfaces can declare method bodies as default implementations, so authors can add members to a published interface without breaking existing implementors.',
       snippet: 'interface ILogger\n{\n    void Log(string msg);\n    void Info(string msg) => Log("[INFO] " + msg);\n}',
     },
     {

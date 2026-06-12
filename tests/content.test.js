@@ -7,9 +7,6 @@ import { QUESTIONS } from '../src/data/questions.js'
 import { EF_TIERS } from '../src/data/ef.js'
 import { EF_FEATURES, efFeaturesOf } from '../src/data/efFeatures.js'
 
-// AUTHORED expands to all eras in the M3a fact-check task — do not ship without it.
-const AUTHORED = new Set(['cs2', 'cs3', 'cs4', 'cs5', 'cs6', 'cs7'])
-
 describe('ERAS', () => {
   it('has the 13 M3a eras in chronological order with rising Release costs', () => {
     expect(ERAS.map((e) => e.id)).toEqual([
@@ -70,7 +67,7 @@ describe('LANGUAGE_FEATURES structure', () => {
 
 describe('QUESTIONS content', () => {
   it('has exactly 10 per era, valid shape, answerable feature refs', () => {
-    for (const era of ERAS.filter((e) => AUTHORED.has(e.id))) {
+    for (const era of ERAS) {
       const qs = QUESTIONS.filter((q) => q.era === era.id)
       expect(qs, era.id).toHaveLength(10)
       const perFeature = {}
@@ -90,8 +87,8 @@ describe('QUESTIONS content', () => {
       }
     }
   })
-  it('every authored card has non-empty blurb and snippet within length caps', () => {
-    for (const f of LANGUAGE_FEATURES.filter((f) => AUTHORED.has(f.era))) {
+  it('every card has non-empty blurb and snippet within length caps', () => {
+    for (const f of LANGUAGE_FEATURES) {
       expect(f.blurb.length, f.id).toBeGreaterThan(20)
       expect(f.blurb.length, f.id).toBeLessThanOrEqual(160)
       expect(f.snippet.length, f.id).toBeGreaterThan(10)
@@ -127,6 +124,14 @@ describe('EF track data', () => {
     for (const t of EF_TIERS) {
       const cards = efFeaturesOf(t.id)
       for (let i = 1; i < cards.length; i++) expect(cards[i].cost).toBeGreaterThan(cards[i - 1].cost)
+    }
+  })
+  it('every EF card has authored blurb and snippet', () => {
+    for (const f of EF_FEATURES) {
+      expect(f.blurb.length, f.id).toBeGreaterThan(20)
+      expect(f.blurb.length, f.id).toBeLessThanOrEqual(160)
+      expect(f.snippet.length, f.id).toBeGreaterThan(10)
+      expect(f.snippet.length, f.id).toBeLessThanOrEqual(220)
     }
   })
 })

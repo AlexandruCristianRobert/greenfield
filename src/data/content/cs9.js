@@ -24,7 +24,7 @@ export const ERA_CONTENT = {
       cost: 1.7e9,
       effect: { type: 'costMult', value: 0.92 },
       effectText: 'Contributor costs −8%',
-      blurb: 'Properties with init accessors can only be set during object construction or object initializer syntax, enabling immutable-after-init objects without a constructor for every variation.',
+      blurb: 'Properties with init accessors can only be set during object construction or an object initializer, enabling immutable-after-init objects without boilerplate.',
       snippet: 'public class Point\n{\n    public int X { get; init; }\n    public int Y { get; init; }\n}\nvar p = new Point { X = 1, Y = 2 };\n// p.X = 3; // compile error',
     },
     {
@@ -64,7 +64,7 @@ export const ERA_CONTENT = {
       cost: 5.8e9,
       effect: { type: 'lpsMult', value: 1.40 },
       effectText: 'All Contributors +40% LoC/s',
-      blurb: 'Source generators are Roslyn compiler extensions (shipped with .NET 5/C# 9) that run at compile time to inspect code and inject new source files into the compilation.',
+      blurb: 'Source generators are Roslyn compiler extensions (shipped with .NET 5/C# 9) that run at compile time and inject new source files into the compilation.',
       snippet: '// A source generator implements ISourceGenerator\n// and adds files during compilation — no runtime\n// reflection needed. Example output:\n// [GeneratedCode] partial class MyClass { ... }',
     },
   ],

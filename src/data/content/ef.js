@@ -19,7 +19,7 @@ export const EF_CONTENT = {
       effect: { type: 'tpMult', value: 1.6 },
       effectText: 'Persistence throughput ×1.6',
       blurb: 'Introduced in EF 4.3, Code-First Migrations incrementally evolve a database schema as your Code First model changes, removing manual SQL.',
-      snippet: 'dotnet ef migrations add AddBlogUrl\ndotnet ef database update',
+      snippet: 'PM> Enable-Migrations\nPM> Add-Migration AddBlogUrl\nPM> Update-Database',
     },
     {
       id: 'ef6-async-queries',
@@ -148,7 +148,7 @@ export const EF_CONTENT = {
       cost: 9.5e13,
       effect: { type: 'tpMult', value: 1.9 },
       effectText: 'Persistence throughput ×1.9',
-      blurb: 'EF Core 9 expanded LINQ-to-SQL coverage with GroupBy aggregate push-down, parameterized collection strategy control, and dozens of new operator translations.',
+      blurb: 'EF Core 9 expanded LINQ-to-SQL coverage with aggregates over subqueries, parameterized collection strategy control, and pruning of unneeded SQL elements.',
       snippet: 'var counts = await ctx.Posts.GroupBy(p => p.BlogId).Select(g => new{g.Key, N=g.Count()}).ToListAsync();',
     },
     {
@@ -178,7 +178,7 @@ export const EF_CONTENT = {
       cost: 4e16,
       effect: { type: 'tpMult', value: 2.2 },
       effectText: 'Persistence throughput ×2.2',
-      blurb: 'EF Core 11 (preview, November 2026) adds complex types on TPT/TPC inheritance, pruned to-one join SQL, vector indexes, and Cosmos transactional batches.',
+      blurb: 'EF Core 11 (preview; GA due November 2026) adds complex types on TPT/TPC inheritance, pruned to-one join SQL, vector indexes, and Cosmos transactional batches.',
       snippet: 'modelBuilder.Entity<Animal>().UseTptMappingStrategy();\n// ComplexType on TPT now supported in EF 11',
     },
   ],

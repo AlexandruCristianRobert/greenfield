@@ -16,7 +16,7 @@ export const ERA_CONTENT = {
       effect: { type: 'lpsMult', value: 1.80 },
       effectText: 'All Contributors +80% LoC/s',
       blurb: 'C# 14 adds extension blocks that can declare extension properties, static extension members, and user-defined operators — not just extension methods.',
-      snippet: 'extension<TSource>(IEnumerable<TSource> source) {\n    public bool IsEmpty => !source.Any();\n}',
+      snippet: 'public static class Seq {\n    extension<TSource>(IEnumerable<TSource> source) {\n        public bool IsEmpty => !source.Any();\n    }\n}',
     },
     {
       id: 'cs14-field-keyword',
