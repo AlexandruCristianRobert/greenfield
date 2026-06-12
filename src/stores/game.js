@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { useShopStore } from './shop.js'
 import { useProgressStore } from './progress.js'
 import { useAwardsStore } from './awards.js'
+import { usePrestigeStore } from './prestige.js'
 
 // Saves can arrive from the world-writable cloud table — never trust them.
 function toCount(value) {
@@ -40,8 +41,12 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function decayCombo(dtSeconds, now = Date.now()) {
-    if (combo.value > 0 && now - lastClickAt > 1_000) {
-      combo.value = Math.max(0, combo.value - 60 * dtSeconds)
+    if (combo.value <= 0) return
+    const cached = usePrestigeStore().hasPattern('pat-caching')
+    const grace = cached ? 2_000 : 1_000
+    const rate = cached ? 30 : 60
+    if (now - lastClickAt > grace) {
+      combo.value = Math.max(0, combo.value - rate * dtSeconds)
     }
   }
 

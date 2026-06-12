@@ -13,6 +13,10 @@ import { usePrestigeStore } from './prestige.js'
 
 const NICKNAME_KEY = 'gf_nickname'
 
+export function offlineMultiplier(prestige) {
+  return prestige.hasPattern('pat-event-sourcing') ? 2 : 1
+}
+
 // localStorage can THROW on mere access in some privacy modes — degrade to
 // memory-only identity instead of dying.
 function safeGet(key) {
@@ -99,7 +103,7 @@ export const useMetaStore = defineStore('meta', () => {
         const shop = useShopStore()
         const capSec = (2 + 2 * (progress.skills.tooling || 0)) * 3600
         const effSec = Math.min(awaySec, capSec)
-        const gain = shop.lps * effSec
+        const gain = shop.lps * effSec * offlineMultiplier(usePrestigeStore())
         if (gain > 0) {
           useGameStore().addLoc(gain)
           offlineReport.value = { gain, seconds: effSec, capped: awaySec > capSec }

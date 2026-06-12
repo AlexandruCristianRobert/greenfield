@@ -46,6 +46,22 @@ export const useShopStore = defineStore('shop', () => {
     return true
   }
 
+  // DI pattern: buy the single cheapest affordable contributor. Returns its id or null.
+  function autoBuy() {
+    const game = useGameStore()
+    let best = null
+    let bestCost = Infinity
+    for (const c of CONTRIBUTORS) {
+      const cost = nextCostOf(c)
+      if (cost <= game.loc && cost < bestCost) {
+        best = c
+        bestCost = cost
+      }
+    }
+    if (!best) return null
+    return buy(best) ? best.id : null
+  }
+
   function rewriteReset() {
     for (const k of Object.keys(owned)) delete owned[k]
   }
@@ -62,5 +78,5 @@ export const useShopStore = defineStore('shop', () => {
     }
   }
 
-  return { owned, baseLps, lps, countOf, nextCostOf, buy, rewriteReset, toSave, hydrate }
+  return { owned, baseLps, lps, countOf, nextCostOf, buy, autoBuy, rewriteReset, toSave, hydrate }
 })

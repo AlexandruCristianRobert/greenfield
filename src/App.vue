@@ -14,11 +14,15 @@ import { useGameStore } from './stores/game.js'
 import { useMetaStore } from './stores/meta.js'
 import { useEventsStore } from './stores/events.js'
 import { useAwardsStore } from './stores/awards.js'
+import { usePrestigeStore } from './stores/prestige.js'
+import { useShopStore } from './stores/shop.js'
 
 const game = useGameStore()
 const meta = useMetaStore()
 const events = useEventsStore()
 const awards = useAwardsStore()
+const prestige = usePrestigeStore()
+const shop = useShopStore()
 
 let tickHandle, saveHandle, cloudHandle, secondHandle, lastTick
 let tickCount = 0
@@ -47,6 +51,7 @@ onMounted(async () => {
     events.tick(Date.now())
     tickCount++
     if (tickCount % 5 === 0) awards.evaluate()
+    if (tickCount % 10 === 0 && prestige.hasPattern('pat-di')) shop.autoBuy()
   }, 1000)
   window.addEventListener('beforeunload', onBeforeUnload)
   document.addEventListener('visibilitychange', onVisibilityChange)
