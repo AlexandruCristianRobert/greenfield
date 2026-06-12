@@ -862,3 +862,9 @@ Full suite + build + clean tree → push → CI watch → live bundle spot-check
 - Combo is deliberately not persisted (transient flow state); offline modal persists gains via saveLocal() immediately to prevent crash double-grants.
 - Emission for EF ratio remains `baseLps` — frenzy buffs do not distort persistence ratio (documented in M3a plan).
 - events.tick spawns nothing while `activePr` is open (no stacked offers); openPr re-rolls from the CURRENT era pool.
+
+## Final-review accepted behaviors (recorded post-review)
+- Transient buffs/combo are never persisted: refreshing clears frenzies AND conflicts symmetrically - accepted.
+- PR modal cannot be closed in-UI before answering; refresh-abandon mirrors the accepted exam-abandon precedent.
+- Offer/buff expiry has <=1s tick jitter (single 1s event clock) - accepted.
+- Achievement toast can render dimmed behind an open modal; unlock persists and shows in the Awards tab - cosmetic, accepted.
