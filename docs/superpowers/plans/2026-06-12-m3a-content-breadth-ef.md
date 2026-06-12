@@ -593,7 +593,7 @@ Fresh agent. (a) Fact-check ALL new content (42 language cards, 70 questions, 17
 
 - [ ] `npm test` full green · `npm run build` · `git status` clean.
 - [ ] Push `git push origin main`; watch CI (`gh run watch …  --exit-status`); fetch the live URL and confirm the new bundle hash + spot-check that 'cs14' and 'EF Core' appear in the served JS.
-- [ ] Owner checklist (report): play from an M2 save — certified-cs7 player should advance to cs8 by funding the cs8-priced Release without a new exam; adopt EF6 from the Data tab once past cs5.
+- [ ] Owner checklist (report): play from an M2 save — certified-cs7 player should advance to cs8 by funding the CURRENT (cs7-priced, 1e8) Release without a new exam; adopt EF6 from the Data tab once past cs5.
 
 ## Self-review notes (applied)
 
