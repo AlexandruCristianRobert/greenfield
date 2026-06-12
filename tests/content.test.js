@@ -59,3 +59,35 @@ describe('LANGUAGE_FEATURES structure', () => {
     }
   })
 })
+
+describe('QUESTIONS content', () => {
+  it('has exactly 10 per era, valid shape, answerable feature refs', () => {
+    for (const era of ERAS) {
+      const qs = QUESTIONS.filter((q) => q.era === era.id)
+      expect(qs, era.id).toHaveLength(10)
+      const perFeature = {}
+      for (const q of qs) {
+        expect(q.options).toHaveLength(4)
+        expect(q.answer).toBeGreaterThanOrEqual(0)
+        expect(q.answer).toBeLessThanOrEqual(3)
+        expect(q.text.length).toBeGreaterThan(10)
+        const card = LANGUAGE_FEATURES.find((f) => f.id === q.feature)
+        expect(card, q.id).toBeTruthy()
+        expect(card.era).toBe(era.id)
+        perFeature[q.feature] = (perFeature[q.feature] || 0) + 1
+      }
+      for (const f of featuresOf(era.id)) {
+        expect(perFeature[f.id], f.id).toBeGreaterThanOrEqual(1)
+        expect(perFeature[f.id], f.id).toBeLessThanOrEqual(2)
+      }
+    }
+  })
+  it('every card has non-empty blurb and snippet within length caps', () => {
+    for (const f of LANGUAGE_FEATURES) {
+      expect(f.blurb.length, f.id).toBeGreaterThan(20)
+      expect(f.blurb.length, f.id).toBeLessThanOrEqual(160)
+      expect(f.snippet.length, f.id).toBeGreaterThan(10)
+      expect(f.snippet.length, f.id).toBeLessThanOrEqual(220)
+    }
+  })
+})
