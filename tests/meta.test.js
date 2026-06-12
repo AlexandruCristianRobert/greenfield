@@ -47,4 +47,26 @@ describe('meta store', () => {
     const meta = useMetaStore()
     expect(await meta.syncCloud()).toBe(false)
   })
+  it('boot grants capped offline gains and reports them', async () => {
+    const meta = useMetaStore()
+    const game = useGameStore()
+    const shop = useShopStore()
+    shop.owned['junior'] = 10 // lps 10
+    game.addLoc(0)
+    // hand-write a save stamped 3 hours ago
+    const save = JSON.parse(JSON.stringify(buildSaveForTest()))
+    function buildSaveForTest() {
+      meta.saveLocal()
+      return JSON.parse(localStorage.getItem(SAVE_KEY))
+    }
+    save.savedAt = Date.now() - 3 * 3600 * 1000
+    localStorage.setItem(SAVE_KEY, JSON.stringify(save))
+    setActivePinia(createPinia())
+    const meta2 = useMetaStore()
+    await meta2.boot()
+    const shop2 = useShopStore()
+    expect(useGameStore().loc).toBeCloseTo(shop2.lps * 2 * 3600, -2) // capped at 2h (tooling 0)
+    expect(meta2.offlineReport).not.toBe(null)
+    expect(meta2.offlineReport.capped).toBe(true)
+  })
 })

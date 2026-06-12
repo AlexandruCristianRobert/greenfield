@@ -5,7 +5,7 @@
 export const SAVE_VERSION = 3
 export const SAVE_KEY = 'gf_save'
 
-export function buildSave({ game, shop, progress, ef }) {
+export function buildSave({ game, shop, progress, ef, awards }) {
   return {
     v: SAVE_VERSION,
     savedAt: Date.now(),
@@ -13,8 +13,8 @@ export function buildSave({ game, shop, progress, ef }) {
     shop: shop.toSave(),
     progress: progress.toSave(),
     ef: ef.toSave(),
-    achievements: {},
-    stats: {},
+    achievements: awards.achievementsToSave(),
+    stats: awards.statsToSave(),
   }
 }
 
@@ -34,11 +34,12 @@ export function migrate(raw) {
   return save.v === SAVE_VERSION ? save : null
 }
 
-export function applySave(save, { game, shop, progress, ef }) {
+export function applySave(save, { game, shop, progress, ef, awards }) {
   game.hydrate(save.game || {})
   shop.hydrate(save.shop || {})
   progress.hydrate(save.progress || {})
   ef.hydrate(save.ef || {})
+  awards.hydrate(save.achievements || {}, save.stats || {})
 }
 
 export function writeLocal(save) {

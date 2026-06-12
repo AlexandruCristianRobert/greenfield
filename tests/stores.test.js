@@ -13,8 +13,8 @@ describe('game store', () => {
     const game = useGameStore()
     game.click()
     game.click()
-    expect(game.loc).toBe(2)
-    expect(game.lifetimeLoc).toBe(2)
+    expect(game.loc).toBeCloseTo(2.06) // first click ×1.02 combo, second ×1.04
+    expect(game.lifetimeLoc).toBeCloseTo(2.06)
   })
   it('spend refuses overdraft and deducts otherwise (lifetime untouched)', () => {
     const game = useGameStore()
@@ -106,7 +106,7 @@ describe('modifier integration', () => {
     progress.knowledge = 1
     progress.allocateSkill('language') // clickMult ×1.12
     game.click()
-    expect(game.loc).toBeCloseTo(1.12)
+    expect(game.loc).toBeCloseTo(1 * 1.12 * 1.02) // first click combo ×1.02
   })
   it('lps scales with lpsMult mods', () => {
     const game = useGameStore()

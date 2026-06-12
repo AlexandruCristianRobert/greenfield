@@ -35,6 +35,12 @@ function fakeStores() {
       toSave() { return { ...this.state } },
       hydrate(s) { this.state = { ...s } },
     },
+    awards: {
+      state: { unlocked: { x: true }, stats: { maxCombo: 3 } },
+      achievementsToSave() { return { unlocked: { ...this.state.unlocked } } },
+      statsToSave() { return { ...this.state.stats } },
+      hydrate(a, s) { this.state = { unlocked: { ...(a.unlocked || {}) }, stats: { ...(s || {}) } } },
+    },
   }
 }
 
@@ -117,5 +123,16 @@ describe('save round-trip', () => {
     expect(out.ef).toEqual({})
     expect(out.achievements).toEqual({})
     expect(out.stats).toEqual({})
+  })
+  it('buildSave/applySave round-trips awards slices', () => {
+    const src = fakeStores()
+    const save = buildSave(src)
+    expect(save.achievements.unlocked.x).toBe(true)
+    expect(save.stats.maxCombo).toBe(3)
+    const dst = fakeStores()
+    dst.awards.state = { unlocked: {}, stats: {} }
+    applySave(save, dst)
+    expect(dst.awards.state.unlocked.x).toBe(true)
+    expect(dst.awards.state.stats.maxCombo).toBe(3)
   })
 })

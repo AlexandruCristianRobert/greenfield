@@ -8,6 +8,7 @@ import { useGameStore } from './game.js'
 import { useShopStore } from './shop.js'
 import { useProgressStore } from './progress.js'
 import { useEfStore } from './ef.js'
+import { useAwardsStore } from './awards.js'
 
 const NICKNAME_KEY = 'gf_nickname'
 
@@ -24,6 +25,7 @@ export const useMetaStore = defineStore('meta', () => {
   const nickname = ref('')
   const booted = ref(false)
   const lastCloudSync = ref(0)
+  const offlineReport = ref(null)
   // True once we've seen the cloud state for this nickname (or there is no cloud
   // at all). While false, upserts are forbidden: a failed boot fetch must never
   // let a fresh session overwrite an existing cloud save.
@@ -31,7 +33,7 @@ export const useMetaStore = defineStore('meta', () => {
   let hadLocalAtBoot = false
 
   function stores() {
-    return { game: useGameStore(), shop: useShopStore(), progress: useProgressStore(), ef: useEfStore() }
+    return { game: useGameStore(), shop: useShopStore(), progress: useProgressStore(), ef: useEfStore(), awards: useAwardsStore() }
   }
 
   function saveNickname(name) {
@@ -88,8 +90,24 @@ export const useMetaStore = defineStore('meta', () => {
     const source = decideSource(local, cloud)
     if (source === 'local') applySave(local, stores())
     if (source === 'cloud') applySave(cloud, stores())
+    const applied = source === 'local' ? local : source === 'cloud' ? cloud : null
+    if (applied?.savedAt) {
+      const awaySec = (Date.now() - applied.savedAt) / 1000
+      if (awaySec > 60) {
+        const progress = useProgressStore()
+        const shop = useShopStore()
+        const capSec = (2 + 2 * (progress.skills.tooling || 0)) * 3600
+        const effSec = Math.min(awaySec, capSec)
+        const gain = shop.lps * effSec
+        if (gain > 0) {
+          useGameStore().addLoc(gain)
+          offlineReport.value = { gain, seconds: effSec, capped: awaySec > capSec }
+          saveLocal() // persist immediately so a crash can't double-grant
+        }
+      }
+    }
     booted.value = true
   }
 
-  return { nickname, booted, lastCloudSync, cloudReady, saveNickname, saveLocal, syncCloud, boot }
+  return { nickname, booted, lastCloudSync, cloudReady, offlineReport, saveNickname, saveLocal, syncCloud, boot }
 })

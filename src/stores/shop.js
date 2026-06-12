@@ -5,6 +5,8 @@ import { costOf, totalLps } from '../lib/economy.js'
 import { useGameStore } from './game.js'
 import { useProgressStore } from './progress.js'
 import { useEfStore } from './ef.js'
+import { useAwardsStore } from './awards.js'
+import { useEventsStore } from './events.js'
 
 // Saves can arrive from the world-writable cloud table — never trust them.
 function toCount(value) {
@@ -23,7 +25,9 @@ export const useShopStore = defineStore('shop', () => {
 
   const lps = computed(() => {
     const ef = useEfStore()
-    return baseLps.value * ef.dataMult
+    const awards = useAwardsStore()
+    const events = useEventsStore()
+    return baseLps.value * ef.dataMult * awards.achMult * events.buffMult
   })
 
   function countOf(id) {
