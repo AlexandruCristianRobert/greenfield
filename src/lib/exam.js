@@ -13,7 +13,7 @@ export function poolFor(questions, eraId, ownedCardIds) {
 export function drawExam(pool, rand = Math.random) {
   const deck = [...pool]
   for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1))
+    const j = Math.min(Math.floor(rand() * (i + 1)), i)
     ;[deck[i], deck[j]] = [deck[j], deck[i]]
   }
   return deck.slice(0, Math.min(EXAM_SIZE, deck.length))

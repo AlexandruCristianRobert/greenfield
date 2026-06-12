@@ -6,8 +6,8 @@ import { ERA_CONTENT as cs6 } from './content/cs6.js'
 import { ERA_CONTENT as cs7 } from './content/cs7.js'
 
 const ALL = [cs2, cs3, cs4, cs5, cs6, cs7]
-export const LANGUAGE_FEATURES = ALL.flatMap((c) => c.features)
-export const QUESTIONS = ALL.flatMap((c) => c.questions)
+export const LANGUAGE_FEATURES = ALL.flatMap((c) => c.features).map((f) => Object.freeze(Object.assign(f, { effect: Object.freeze(f.effect) })))
+export const QUESTIONS = ALL.flatMap((c) => c.questions).map((q) => Object.freeze(Object.assign(q, { options: Object.freeze(q.options) })))
 export function featuresOf(eraId) {
   return LANGUAGE_FEATURES.filter((f) => f.era === eraId)
 }

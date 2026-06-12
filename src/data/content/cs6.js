@@ -113,7 +113,7 @@ export const ERA_CONTENT = {
       id: 'q-cs6-04',
       era: 'cs6',
       feature: 'cs6-null-conditional',
-      text: 'In `list?[0]?.Length`, what happens if list is null?',
+      text: 'In list?[0]?.Length, what happens if list is null?',
       options: [
         'An IndexOutOfRangeException is thrown',
         'The chain short-circuits and the expression evaluates to null',
@@ -165,7 +165,7 @@ export const ERA_CONTENT = {
       id: 'q-cs6-08',
       era: 'cs6',
       feature: 'cs6-auto-property-init',
-      text: 'In the auto-property initializer `public string Name { get; set; } = "Unknown";`, when is "Unknown" assigned?',
+      text: 'In the auto-property initializer public string Name { get; set; } = "Unknown";, when is "Unknown" assigned?',
       options: [
         'Each time the getter is called',
         'Only when the setter is not called during construction',

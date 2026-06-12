@@ -90,4 +90,8 @@ describe('QUESTIONS content', () => {
       expect(f.snippet.length, f.id).toBeLessThanOrEqual(220)
     }
   })
+  it('question ids are unique and era-prefixed', () => {
+    expect(new Set(QUESTIONS.map((q) => q.id)).size).toBe(QUESTIONS.length)
+    for (const q of QUESTIONS) expect(q.id.startsWith('q-' + q.era + '-'), q.id).toBe(true)
+  })
 })

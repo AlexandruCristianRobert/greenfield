@@ -74,7 +74,7 @@ export const ERA_CONTENT = {
       id: 'q-cs7-01',
       era: 'cs7',
       feature: 'cs7-pattern-matching',
-      text: 'In `if (obj is int n)`, what does the pattern matching do?',
+      text: 'In if (obj is int n), what does the pattern matching do?',
       options: [
         'It casts obj to int and throws if it fails',
         'It tests whether obj is an int and binds it to n if so',
@@ -113,7 +113,7 @@ export const ERA_CONTENT = {
       id: 'q-cs7-04',
       era: 'cs7',
       feature: 'cs7-tuples',
-      text: 'In `var (lo, hi) = Range(data);`, what C# 7 feature is being used alongside tuples?',
+      text: 'In var (lo, hi) = Range(data);, what C# 7 feature is being used alongside tuples?',
       options: [
         'Pattern matching',
         'out var declaration',
@@ -152,7 +152,7 @@ export const ERA_CONTENT = {
       id: 'q-cs7-07',
       era: 'cs7',
       feature: 'cs7-out-var',
-      text: 'What does `int.TryParse(input, out int n)` demonstrate about C# 7 out variables?',
+      text: 'What does int.TryParse(input, out int n) demonstrate about C# 7 out variables?',
       options: [
         'out parameters can now be optional',
         'The variable n is declared inline at the call site',
@@ -178,7 +178,7 @@ export const ERA_CONTENT = {
       id: 'q-cs7-09',
       era: 'cs7',
       feature: 'cs7-throw-expressions',
-      text: 'In `string name = input ?? throw new ArgumentNullException(nameof(input));`, what triggers the throw?',
+      text: 'In string name = input ?? throw new ArgumentNullException(nameof(input));, what triggers the throw?',
       options: [
         'input being an empty string',
         'input being null (null-coalescing right side)',
