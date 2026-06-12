@@ -110,3 +110,37 @@ body {
 .modal h2 { margin: 0; }
 .hint { font-size: 0.85rem; color: var(--muted); margin: 0; }
 .hint.bad { color: var(--bad); }
+
+/* ── shop tabs ── */
+.shop-tabs { display: flex; gap: 6px; margin-bottom: 4px; }
+.shop-tab {
+  flex: 1; padding: 8px 0; border-radius: 8px; cursor: pointer;
+  background: var(--panel); color: var(--muted); border: 1px solid var(--border);
+}
+.shop-tab.active { background: var(--panel-2); color: var(--text); border-color: var(--accent-2); }
+.shop-list { display: flex; flex-direction: column; gap: 10px; }
+
+/* ── feature cards ── */
+.era-section { display: flex; flex-direction: column; gap: 8px; }
+.era-heading { margin: 8px 0 0; font-size: 0.95rem; }
+.feature-card { display: flex; flex-direction: column; gap: 6px; }
+.feature-card.owned { border-color: var(--accent-2); }
+.feature-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.feature-owned { color: var(--accent); font-size: 0.9rem; }
+.feature-effect { margin: 0; color: var(--accent); font-size: 0.9rem; }
+.feature-blurb { margin: 0; font-size: 0.88rem; }
+.snippet-toggle { background: none; border: none; cursor: pointer; align-self: flex-start; padding: 0; font-size: 0.8rem; text-decoration: underline; }
+.snippet {
+  margin: 0; padding: 10px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; font-size: 0.8rem; overflow-x: auto; white-space: pre-wrap;
+}
+
+/* ── skill tree ── */
+.knowledge-line { margin: 0; }
+.skill-branch { display: flex; flex-direction: column; gap: 8px; }
+.skill-head { display: flex; align-items: center; gap: 12px; }
+.skill-icon { font-size: 1.4rem; width: 34px; text-align: center; }
+.skill-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.skill-pips { display: flex; gap: 6px; }
+.pip { width: 18px; height: 8px; border-radius: 4px; background: var(--border); }
+.pip.filled { background: var(--accent); }
