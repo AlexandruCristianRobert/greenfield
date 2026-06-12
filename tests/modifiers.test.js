@@ -13,11 +13,13 @@ describe('combineMods', () => {
       { type: 'lpsMult', value: 1.25 },
       { type: 'costMult', value: 0.9 },
       { type: 'releaseMult', value: 0.95 },
+      { type: 'tpMult', value: 2 },
     ])
     expect(mods.clickMult).toBeCloseTo(3)
     expect(mods.lpsMult).toBeCloseTo(1.25)
     expect(mods.costMult).toBeCloseTo(0.9)
     expect(mods.releaseMult).toBeCloseTo(0.95)
+    expect(mods.tpMult).toBeCloseTo(2)
   })
   it('ignores unknown types and junk values (hostile save data)', () => {
     const mods = combineMods([
@@ -30,6 +32,6 @@ describe('combineMods', () => {
     expect(mods).toEqual(BASE_MODS)
   })
   it('exposes the canonical effect type list', () => {
-    expect(EFFECT_TYPES).toEqual(['clickMult', 'lpsMult', 'costMult', 'releaseMult'])
+    expect(EFFECT_TYPES).toEqual(['clickMult', 'lpsMult', 'costMult', 'releaseMult', 'tpMult'])
   })
 })

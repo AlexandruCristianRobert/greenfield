@@ -4,6 +4,8 @@ import { SKILL_BRANCHES, MAX_SKILL_NODES, skillNodeCost } from '../src/data/skil
 import { EFFECT_TYPES } from '../src/lib/modifiers.js'
 import { LANGUAGE_FEATURES, featuresOf } from '../src/data/featuresLanguage.js'
 import { QUESTIONS } from '../src/data/questions.js'
+import { EF_TIERS } from '../src/data/ef.js'
+import { EF_FEATURES, efFeaturesOf } from '../src/data/efFeatures.js'
 
 // AUTHORED expands to all eras in the M3a fact-check task — do not ship without it.
 const AUTHORED = new Set(['cs2', 'cs3', 'cs4', 'cs5', 'cs6', 'cs7'])
@@ -99,5 +101,32 @@ describe('QUESTIONS content', () => {
   it('question ids are unique and era-prefixed', () => {
     expect(new Set(QUESTIONS.map((q) => q.id)).size).toBe(QUESTIONS.length)
     for (const q of QUESTIONS) expect(q.id.startsWith('q-' + q.era + '-'), q.id).toBe(true)
+  })
+})
+
+describe('EF track data', () => {
+  it('has 9 tiers with rising costs and known era requirements', () => {
+    expect(EF_TIERS.map((t) => t.id)).toEqual(['ef6', 'efcore1', 'efcore3', 'efcore6', 'ef7', 'ef8', 'ef9', 'ef10', 'ef11'])
+    const eraIds = new Set(ERAS.map((e) => e.id))
+    for (let i = 0; i < EF_TIERS.length; i++) {
+      const t = EF_TIERS[i]
+      expect(eraIds.has(t.requiresEra), t.id).toBe(true)
+      expect(t.baseThroughput).toBeGreaterThan(0)
+      if (i > 0) expect(t.cost).toBeGreaterThan(EF_TIERS[i - 1].cost)
+    }
+  })
+  it('EF cards are tpMult-typed, unique, tier-valid, rising cost per tier', () => {
+    expect(EF_FEATURES.length).toBeGreaterThanOrEqual(17)
+    expect(new Set(EF_FEATURES.map((f) => f.id)).size).toBe(EF_FEATURES.length)
+    const tierIds = new Set(EF_TIERS.map((t) => t.id))
+    for (const f of EF_FEATURES) {
+      expect(tierIds.has(f.tier), f.id).toBe(true)
+      expect(f.effect.type).toBe('tpMult')
+      expect(f.effect.value).toBeGreaterThan(1)
+    }
+    for (const t of EF_TIERS) {
+      const cards = efFeaturesOf(t.id)
+      for (let i = 1; i < cards.length; i++) expect(cards[i].cost).toBeGreaterThan(cards[i - 1].cost)
+    }
   })
 })
