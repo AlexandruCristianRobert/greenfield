@@ -4,6 +4,7 @@ import HeaderBar from './components/HeaderBar.vue'
 import ClickTarget from './components/ClickTarget.vue'
 import ShopPanel from './components/ShopPanel.vue'
 import NicknameModal from './components/NicknameModal.vue'
+import EraPanel from './components/EraPanel.vue'
 import { useGameStore } from './stores/game.js'
 import { useMetaStore } from './stores/meta.js'
 
@@ -55,7 +56,10 @@ function onSaveName(name) {
   <HeaderBar />
   <!-- Gate on booted so clicks can't land before the saved state is applied -->
   <main v-if="meta.booted" class="layout">
-    <section class="pane"><ClickTarget /></section>
+    <section class="pane">
+      <ClickTarget />
+      <EraPanel />
+    </section>
     <section class="pane"><ShopPanel /></section>
   </main>
 </template>

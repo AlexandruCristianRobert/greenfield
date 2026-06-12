@@ -2,19 +2,23 @@
 import { useGameStore } from '../stores/game.js'
 import { useShopStore } from '../stores/shop.js'
 import { useMetaStore } from '../stores/meta.js'
+import { useProgressStore } from '../stores/progress.js'
 import { formatNumber, formatRate } from '../lib/format.js'
 
 const game = useGameStore()
 const shop = useShopStore()
 const meta = useMetaStore()
+const progress = useProgressStore()
 </script>
 
 <template>
   <header class="header">
     <span class="brand">🌱 Greenfield</span>
     <div class="counters">
+      <span class="era-chip" :style="{ borderColor: progress.currentEra.color }">{{ progress.currentEra.csVersion }}</span>
       <strong class="loc-counter">{{ formatNumber(game.loc) }} LoC</strong>
       <span class="muted">{{ formatRate(shop.lps) }} LoC/s</span>
+      <span class="muted">🧠 {{ progress.knowledgeFree }}</span>
     </div>
     <span class="muted">{{ meta.nickname || '—' }}</span>
   </header>
